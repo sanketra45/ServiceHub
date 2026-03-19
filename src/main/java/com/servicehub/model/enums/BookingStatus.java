@@ -1,0 +1,11 @@
+package com.servicehub.model.enums;
+
+// THIS CLASS PROVIDES THE SET OF BOOLEAN VALUES THAT REPRESENTS THE CURRENT STATE OF OUR BOOKING
+
+public enum BookingStatus {
+    PENDING,
+    ACCEPTED,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
+}
