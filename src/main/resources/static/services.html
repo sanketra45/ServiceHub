@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Service Categories | ProPavilion</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-container-highest": "#e0e4da",
+                "surface-container": "#ebefe5",
+                "error-container": "#ffdad6",
+                "secondary-container": "#98f994",
+                "surface-container-lowest": "#ffffff",
+                "secondary-fixed-dim": "#7ddc7a",
+                "on-error": "#ffffff",
+                "on-primary-container": "#e9f2ff",
+                "surface-container-low": "#f1f5eb",
+                "background": "#f7fbf0",
+                "tertiary-container": "#5e7179",
+                "on-tertiary-fixed": "#0b1e24",
+                "on-primary-fixed-variant": "#004a78",
+                "surface": "#f7fbf0",
+                "on-error-container": "#93000a",
+                "tertiary": "#465860",
+                "error": "#ba1a1a",
+                "on-primary-fixed": "#001d34",
+                "outline": "#707a6c",
+                "on-surface-variant": "#40493d",
+                "primary-container": "#0072b6",
+                "on-tertiary": "#ffffff",
+                "tertiary-fixed": "#d2e6ef",
+                "outline-variant": "#bfcaba",
+                "inverse-on-surface": "#eef2e8",
+                "inverse-primary": "#99cbff",
+                "on-surface": "#181d17",
+                "on-secondary-container": "#0c7521",
+                "surface-dim": "#d7dbd2",
+                "inverse-surface": "#2d322b",
+                "secondary-fixed": "#98f994",
+                "on-tertiary-fixed-variant": "#374951",
+                "secondary": "#006e1c",
+                "on-secondary": "#ffffff",
+                "primary": "#00598f",
+                "surface-variant": "#e0e4da",
+                "on-secondary-fixed-variant": "#005313",
+                "primary-fixed-dim": "#99cbff",
+                "primary-fixed": "#cfe5ff",
+                "tertiary-fixed-dim": "#b6cad2",
+                "on-tertiary-container": "#e1f5fe",
+                "surface-bright": "#f7fbf0",
+                "surface-tint": "#00629e",
+                "on-secondary-fixed": "#002204",
+                "on-background": "#181d17",
+                "surface-container-high": "#e5eadf",
+                "on-primary": "#ffffff"
+              },
+              fontFamily: {
+                "manrope": ["Manrope", "sans-serif"],
+                "jakarta": ["Plus Jakarta Sans", "sans-serif"],
+              },
+              borderRadius: {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+              },
+            },
+          },
+        }
+    </script>
+    <style>
+        body {
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          background-color: #f7fbf0;
+          color: #181d17;
+        }
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+          vertical-align: middle;
+        }
+        .glass-nav {
+          background-color: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-secondary-container">
+
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full z-50 glass-nav shadow-sm">
+    <nav class="flex justify-between items-center px-8 h-20 max-w-screen-2xl mx-auto">
+        <div class="flex items-center gap-12">
+            <span class="text-2xl font-black text-green-800 tracking-tighter font-manrope">ProPavilion</span>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="text-green-700 border-b-2 border-green-700 pb-1 font-manrope tracking-tight font-semibold" href="#">Browse Services</a>
+                <a class="text-zinc-600 hover:text-green-700 transition-colors font-manrope tracking-tight font-semibold" href="#">How it Works</a>
+                <a class="text-zinc-600 hover:text-green-700 transition-colors font-manrope tracking-tight font-semibold" href="#">Become a Pro</a>
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="relative hidden lg:block">
+                <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <span class="material-symbols-outlined text-outline">search</span>
+                </div>
+                <input class="bg-surface-container-highest border-none rounded-full pl-12 pr-6 py-2 w-64 focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search services..." type="text"/>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="p-2 rounded-full hover:bg-zinc-100/50 transition-colors active:scale-90">
+                    <span class="material-symbols-outlined text-tertiary">notifications</span>
+                </button>
+                <button class="p-2 rounded-full hover:bg-zinc-100/50 transition-colors active:scale-90">
+                    <span class="material-symbols-outlined text-tertiary">favorite</span>
+                </button>
+                <div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border-2 border-white shadow-sm">
+                    <img class="w-full h-full object-cover" alt="User profile" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"/>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="max-w-screen-2xl mx-auto px-8 py-12 md:py-20">
+
+    <!-- Hero Section -->
+    <section class="mb-16">
+        <h1 class="font-manrope text-5xl md:text-6xl font-extrabold tracking-tighter text-on-surface mb-6 max-w-3xl leading-[1.1]">
+            Curated Expertise for your <span class="text-primary italic">Everyday Life.</span>
+        </h1>
+        <p class="font-jakarta text-lg text-tertiary max-w-2xl">
+            Explore our pavilion of hand-picked professionals. From home maintenance to personal growth, find the precise skill you need to elevate your living.
+        </p>
+    </section>
+
+    <!-- Layout with Sidebar Filter -->
+    <div class="flex flex-col lg:flex-row gap-12">
+
+        <!-- Filter Sidebar -->
+        <aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+            <div>
+                <h3 class="font-manrope font-bold text-lg mb-6 text-on-surface">Refine Search</h3>
+                <div class="space-y-4">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input class="rounded-lg border-outline-variant text-secondary focus:ring-secondary/20 h-5 w-5 transition-all" type="checkbox"/>
+                        <span class="font-jakarta text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Immediate Availability</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input checked class="rounded-lg border-outline-variant text-secondary focus:ring-secondary/20 h-5 w-5 transition-all" type="checkbox"/>
+                        <span class="font-jakarta text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Verified Professionals</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input class="rounded-lg border-outline-variant text-secondary focus:ring-secondary/20 h-5 w-5 transition-all" type="checkbox"/>
+                        <span class="font-jakarta text-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Top Rated (4.5+)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="font-manrope font-bold text-lg mb-6 text-on-surface">Popular Tags</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer">Eco-Friendly</span>
+                    <span class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer">Emergency</span>
+                    <span class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer">Certified</span>
+                    <span class="px-4 py-2 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-semibold hover:bg-secondary-container hover:text-on-secondary-container transition-colors cursor-pointer">Luxury Care</span>
+                </div>
+            </div>
+
+            <!-- Promo Card -->
+            <div class="bg-primary p-6 rounded-xl text-on-primary shadow-lg overflow-hidden relative">
+                <div class="relative z-10">
+                    <p class="font-manrope font-bold text-xl mb-2">Pavilion Pro+</p>
+                    <p class="font-jakarta text-sm opacity-90 mb-4">Unlimited bookings with zero service fees for members.</p>
+                    <button class="bg-white text-primary px-6 py-2 rounded-full text-sm font-bold hover:scale-105 transition-transform active:scale-95">Upgrade Now</button>
+                </div>
+                <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-primary-container rounded-full opacity-50"></div>
+            </div>
+        </aside>
+
+        <!-- Main Grid -->
+        <div class="flex-grow">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                <!-- Electrician -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">electric_bolt</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Electrician</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Expert rewiring, lighting installations, and power troubleshooting.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Plumber -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-cyan-50 flex items-center justify-center mb-6 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">water_drop</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Plumber</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Seamless pipe repairs, bathroom fittings, and drainage solutions.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Tutor -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-amber-50 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">school</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Tutor</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Personalized academic support and specialized skill development.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Cleaner -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-teal-50 flex items-center justify-center mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">mop</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Cleaner</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Deep residential cleaning, eco-friendly options, and organizing.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Carpenter -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-orange-50 flex items-center justify-center mb-6 group-hover:bg-orange-700 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">handyman</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Carpenter</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Custom furniture, cabinetry, and structural woodwork repairs.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Mechanic -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-gray-50 flex items-center justify-center mb-6 group-hover:bg-zinc-800 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">directions_car</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Mechanic</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">On-site vehicle diagnostics, basic repairs, and maintenance checks.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- AC Repair -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-blue-50 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">ac_unit</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">AC Repair</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">HVAC maintenance, system installation, and rapid cooling repairs.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Gardening -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-green-50 flex items-center justify-center mb-6 group-hover:bg-secondary group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">grass</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Gardening</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Professional landscaping, lawn care, and botanical styling.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Painting -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-rose-50 flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">format_paint</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Painting</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Interior accent walls, exterior refinishing, and mural work.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Pest Control -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-red-50 flex items-center justify-center mb-6 group-hover:bg-red-700 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">pest_control</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Pest Control</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Humane removals, preventative barriers, and thorough inspections.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+                <!-- Appliances -->
+                <div class="group bg-surface-container-lowest p-8 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+                    <div class="w-16 h-16 rounded-xl bg-violet-50 flex items-center justify-center mb-6 group-hover:bg-violet-600 group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-4xl">kitchen</span>
+                    </div>
+                    <h4 class="font-manrope font-bold text-xl text-on-surface mb-2">Appliances</h4>
+                    <p class="font-jakarta text-sm text-tertiary mb-6">Repair for refrigerators, washing machines, and smart appliances.</p>
+                    <div class="flex items-center text-xs font-bold text-primary group-hover:translate-x-2 transition-transform">
+                        EXPLORE SERVICES <span class="material-symbols-outlined text-sm ml-2">arrow_forward</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full pt-16 pb-8 border-t border-zinc-200 bg-zinc-50">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto">
+        <div class="space-y-6">
+            <span class="font-manrope font-bold text-lg text-green-800">ProPavilion</span>
+            <p class="font-jakarta text-sm text-zinc-500 leading-relaxed">Elevating the local marketplace experience through curated expertise and intentional design.</p>
+        </div>
+        <div class="space-y-4">
+            <h4 class="font-manrope font-bold text-zinc-800">Popular Categories</h4>
+            <ul class="space-y-2">
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Home Cleaning</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Garden Design</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Interior Styling</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Appliance Repair</a></li>
+            </ul>
+        </div>
+        <div class="space-y-4">
+            <h4 class="font-manrope font-bold text-zinc-800">Community</h4>
+            <ul class="space-y-2">
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Contact Support</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Become a Provider</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Refer a Friend</a></li>
+            </ul>
+        </div>
+        <div class="space-y-4">
+            <h4 class="font-manrope font-bold text-zinc-800">Legal</h4>
+            <ul class="space-y-2">
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Privacy Policy</a></li>
+                <li><a class="font-jakarta text-sm text-zinc-500 hover:text-green-600 transition-opacity hover:underline decoration-2 underline-offset-4" href="#">Terms of Service</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="max-w-screen-2xl mx-auto px-8 mt-16 pt-8 border-t border-zinc-200/50">
+        <p class="font-jakarta text-xs text-zinc-400 text-center md:text-left">© 2024 ProPavilion Marketplace. An Organic Atelier Experience.</p>
+    </div>
+</footer>
+
+</body>
+</html>
