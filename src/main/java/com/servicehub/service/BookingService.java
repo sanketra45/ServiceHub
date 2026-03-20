@@ -1,4 +1,164 @@
 package com.servicehub.service;
 
+// THIS IS THE CORE LOGIC OF BOOKING SERVICE
+// IT HANDELS :
+// 1. creating a booking
+// 2. Status transitions (PENDING → ACCEPTED → IN_PROGRESS → COMPLETED / CANCELLED)
+// 3. Fetching booking history for customers and providers
+// 4. Emergency booking (finds first available verified provider)
+
+import com.servicehub.dto.request.BookingRequest;
+import com.servicehub.dto.response.BookingResponse;
+import com.servicehub.dto.response.ProviderResponse;
+import com.servicehub.model.*;
+import com.servicehub.model.enums.BookingStatus;
+import com.servicehub.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
 public class BookingService {
+
+    private final BookingRepository bookingRepository;
+    private final ServiceProviderRepository providerRepository;
+    private final UserRepository userRepository;
+
+    // --- Create a new booking ---
+    // Checks if the time slot is already taken before confirming
+    public BookingResponse createBooking(Long customerId, BookingRequest request) {
+        User customer = userRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        ServiceProvider provider = providerRepository.findById(request.getProviderId())
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
+
+        // Slot conflict check — same provider, same date, same time
+        boolean slotTaken = bookingRepository.existsByProviderIdAndBookingDateAndTimeSlot(
+                request.getProviderId(), request.getBookingDate(), request.getTimeSlot());
+
+        if (slotTaken) {
+            throw new RuntimeException("This time slot is already booked");
+        }
+
+        // Calculate estimated total (hourlyRate × 1 hour default)
+        Double total = provider.getHourlyRate();
+
+        Booking booking = Booking.builder()
+                .customer(customer)
+                .provider(provider)
+                .serviceType(request.getServiceType())
+                .description(request.getDescription())
+                .bookingDate(request.getBookingDate())
+                .timeSlot(request.getTimeSlot())
+                .address(request.getAddress())
+                .totalAmount(total)
+                .status(BookingStatus.PENDING)
+                .build();
+
+        return mapToResponse(bookingRepository.save(booking));
+    }
+
+    // --- Update booking status ---
+    // Rules:
+    //   PROVIDER can: PENDING → ACCEPTED, ACCEPTED → IN_PROGRESS, IN_PROGRESS → COMPLETED
+    //   CUSTOMER can: PENDING → CANCELLED
+    //   ADMIN can: anything
+    public BookingResponse updateStatus(Long bookingId, BookingStatus newStatus,
+                                        Long requesterId, String requesterRole) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        validateStatusTransition(booking, newStatus, requesterId, requesterRole);
+        booking.setStatus(newStatus);
+        return mapToResponse(bookingRepository.save(booking));
+    }
+
+    private void validateStatusTransition(Booking booking, BookingStatus newStatus,
+                                          Long requesterId, String role) {
+        BookingStatus current = booking.getStatus();
+
+        if ("ROLE_ADMIN".equals(role)) return; // Admin can do anything
+
+        if ("ROLE_PROVIDER".equals(role)) {
+            Long providerId = booking.getProvider().getUser().getId();
+            if (!providerId.equals(requesterId)) {
+                throw new RuntimeException("Not your booking");
+            }
+            // Provider valid transitions
+            if (!((current == BookingStatus.PENDING   && newStatus == BookingStatus.ACCEPTED)  ||
+                    (current == BookingStatus.ACCEPTED  && newStatus == BookingStatus.IN_PROGRESS) ||
+                    (current == BookingStatus.IN_PROGRESS && newStatus == BookingStatus.COMPLETED))) {
+                throw new RuntimeException("Invalid status transition for provider");
+            }
+        }
+
+        if ("ROLE_CUSTOMER".equals(role)) {
+            if (!booking.getCustomer().getId().equals(requesterId)) {
+                throw new RuntimeException("Not your booking");
+            }
+            // Customer can only cancel a PENDING booking
+            if (!(current == BookingStatus.PENDING && newStatus == BookingStatus.CANCELLED)) {
+                throw new RuntimeException("Customer can only cancel pending bookings");
+            }
+        }
+    }
+
+    // --- Get all bookings for a customer (booking history) ---
+    public List<BookingResponse> getCustomerBookings(Long customerId) {
+        return bookingRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
+                .stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    // --- Get all bookings assigned to a provider ---
+    public List<BookingResponse> getProviderBookings(Long userId) {
+        ServiceProvider provider = providerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
+        return bookingRepository.findByProviderId(provider.getId())
+                .stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    // --- Get single booking by ID ---
+    public BookingResponse getById(Long bookingId) {
+        return bookingRepository.findById(bookingId)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    }
+
+    // --- Emergency booking ---
+    // Finds verified providers of a type in a city and returns
+    // the highest-rated available one instantly
+    public ProviderResponse emergencyBook(String serviceType, String city,
+                                          com.servicehub.service.ProviderService providerService) {
+        return providerRepository
+                .findByServiceTypeIgnoreCaseAndCityIgnoreCase(serviceType, city)
+                .stream()
+                .filter(p -> p.isVerified())
+                .max(java.util.Comparator.comparingDouble(ServiceProvider::getAverageRating))
+                .map(providerService::mapToResponse)
+                .orElseThrow(() -> new RuntimeException(
+                        "No available verified providers for " + serviceType + " in " + city));
+    }
+
+    // --- Helper: maps entity to response DTO ---
+    private BookingResponse mapToResponse(Booking b) {
+        return BookingResponse.builder()
+                .id(b.getId())
+                .customerId(b.getCustomer().getId())
+                .customerName(b.getCustomer().getName())
+                .providerId(b.getProvider().getId())
+                .providerName(b.getProvider().getUser().getName())
+                .serviceType(b.getServiceType())
+                .description(b.getDescription())
+                .bookingDate(b.getBookingDate())
+                .timeSlot(b.getTimeSlot())
+                .status(b.getStatus())
+                .totalAmount(b.getTotalAmount())
+                .address(b.getAddress())
+                .createdAt(b.getCreatedAt())
+                .build();
+    }
 }
