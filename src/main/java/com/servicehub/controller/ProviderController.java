@@ -93,4 +93,15 @@ public class ProviderController {
     public ResponseEntity<ProviderResponse> toggleVerify(@PathVariable Long id) {
         return ResponseEntity.ok(providerService.toggleVerification(id));
     }
+
+    // GET /api/providers/ai-recommend
+    @GetMapping("/ai-recommend")
+    public ResponseEntity<List<ProviderResponse>> aiRecommend(
+            @RequestParam(required = false) String serviceType,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng) {
+        return ResponseEntity.ok(
+                providerService.getAIRecommendations(serviceType, city, lat, lng));
+    }
 }

@@ -200,4 +200,67 @@ public class ProviderService {
                 .servicesOffered(p.getServicesOffered())
                 .build();
     }
+
+    // --- Enhanced AI Recommendation ---
+// Score formula:
+//   40% → rating (out of 5)
+//   25% → experience (capped at 10 years)
+//   20% → verified badge bonus
+//   15% → proximity (inverse distance, only if lat/lng provided)
+    public List<ProviderResponse> getAIRecommendations(
+            String serviceType, String city,
+            Double userLat, Double userLng) {
+
+        List<ServiceProvider> pool;
+
+        if (serviceType != null && city != null) {
+            pool = providerRepository
+                    .findByServiceTypeIgnoreCaseAndCityIgnoreCase(serviceType, city);
+        } else if (serviceType != null) {
+            pool = providerRepository.findByServiceTypeIgnoreCase(serviceType);
+        } else {
+            pool = providerRepository.findAll();
+        }
+
+        return pool.stream()
+                .sorted(Comparator.comparingDouble(
+                        p -> -aiScore(p, userLat, userLng)))  // descending
+                .limit(10)
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    private double aiScore(ServiceProvider p, Double userLat, Double userLng) {
+        double ratingScore  = (p.getAverageRating() / 5.0) * 0.40;
+        double expScore     = (Math.min(p.getExperienceYears() != null
+                ? p.getExperienceYears() : 0, 10) / 10.0) * 0.25;
+        double verifiedScore = p.isVerified() ? 0.20 : 0.0;
+
+        double proximityScore = 0.0;
+        if (userLat != null && userLng != null
+                && p.getLatitude() != null && p.getLongitude() != null) {
+            double distKm = haversineDistance(
+                    userLat, userLng, p.getLatitude(), p.getLongitude());
+            // Closer = higher score. Max bonus at 0km, zero bonus at 50km+
+            proximityScore = Math.max(0, (50.0 - distKm) / 50.0) * 0.15;
+        } else {
+            // No location provided — redistribute weight to rating
+            ratingScore += 0.15;
+        }
+
+        return ratingScore + expScore + verifiedScore + proximityScore;
+    }
+
+    // Haversine formula — calculates real-world distance between two lat/lng points
+    private double haversineDistance(double lat1, double lng1,
+                                     double lat2, double lng2) {
+        final double R = 6371.0; // Earth radius in km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1))
+                * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
 }
