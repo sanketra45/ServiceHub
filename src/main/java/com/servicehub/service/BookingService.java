@@ -26,6 +26,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final ServiceProviderRepository providerRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     // --- Create a new booking ---
     // Checks if the time slot is already taken before confirming
@@ -36,7 +37,6 @@ public class BookingService {
         ServiceProvider provider = providerRepository.findById(request.getProviderId())
                 .orElseThrow(() -> new RuntimeException("Provider not found"));
 
-        // Slot conflict check — same provider, same date, same time
         boolean slotTaken = bookingRepository.existsByProviderIdAndBookingDateAndTimeSlot(
                 request.getProviderId(), request.getBookingDate(), request.getTimeSlot());
 
@@ -44,7 +44,6 @@ public class BookingService {
             throw new RuntimeException("This time slot is already booked");
         }
 
-        // Calculate estimated total (hourlyRate × 1 hour default)
         Double total = provider.getHourlyRate();
 
         Booking booking = Booking.builder()
@@ -59,7 +58,10 @@ public class BookingService {
                 .status(BookingStatus.PENDING)
                 .build();
 
-        return mapToResponse(bookingRepository.save(booking));
+        Booking savedBooking = bookingRepository.save(booking);  // ← save first, keep reference
+        emailService.sendBookingConfirmation(savedBooking);       // ← then send emails
+        emailService.sendNewBookingNotificationToProvider(savedBooking);
+        return mapToResponse(savedBooking);                       // ← return last
     }
 
     // --- Update booking status ---
@@ -74,7 +76,10 @@ public class BookingService {
 
         validateStatusTransition(booking, newStatus, requesterId, requesterRole);
         booking.setStatus(newStatus);
-        return mapToResponse(bookingRepository.save(booking));
+
+        Booking updatedBooking = bookingRepository.save(booking);  // ← save first
+        emailService.sendStatusUpdateEmail(updatedBooking);         // ← then email
+        return mapToResponse(updatedBooking);                       // ← return last
     }
 
     private void validateStatusTransition(Booking booking, BookingStatus newStatus,
