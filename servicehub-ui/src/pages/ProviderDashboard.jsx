@@ -88,6 +88,10 @@ export default function ProviderDashboard() {
   };
 
   const handlePhotoUpload = async (e) => {
+    if (isNewProfile || !profile) {
+      toast.error("Please save your profile settings before uploading a photo.");
+      return;
+    }
     const file = e.target.files[0];
     if (!file) return;
     const fd = new FormData(); fd.append("file", file);
@@ -99,6 +103,10 @@ export default function ProviderDashboard() {
   };
 
   const handleWorkUpload = async (e) => {
+    if (isNewProfile || !profile) {
+      toast.error("Please save your profile settings before uploading work images.");
+      return;
+    }
     const file = e.target.files[0];
     if (!file) return;
     const fd = new FormData(); fd.append("file", file);
