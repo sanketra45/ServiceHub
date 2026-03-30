@@ -26,4 +26,7 @@ public class BookingResponse {
     private Double totalAmount;
     private String address;
     private LocalDateTime createdAt;
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+    private String paymentStatus; // PENDING / INITIATED / PAID / FAILED / REFUNDED
 }

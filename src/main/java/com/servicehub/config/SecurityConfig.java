@@ -2,6 +2,7 @@ package com.servicehub.config;
 
 import com.servicehub.repository.UserRepository;
 import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,31 +19,42 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {          // ← removed @RequiredArgsConstructor
+public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final UserRepository userRepository;
 
-    // Manual constructor with @Lazy on JwtAuthFilter
     public SecurityConfig(@Lazy JwtAuthFilter jwtAuthFilter,
                           UserRepository userRepository) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.userRepository = userRepository;
     }
 
+    // 🔐 MAIN SECURITY CONFIG
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                                .anyRequest().permitAll()
-//                        .requestMatchers("/api/auth/**").permitAll()
-//                        .requestMatchers("/api/providers/search").permitAll()
-//                        .requestMatchers("/", "/index.html", "/categories.html",
-//                                "/css/**", "/js/**", "/images/**").permitAll()
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/api/bookings/**").hasAnyRole("CUSTOMER", "PROVIDER", "ADMIN")
-//                        .anyRequest().authenticated()
+
+                        // ✅ PUBLIC APIs
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/providers/search").permitAll()
+                        .requestMatchers("/api/providers/nearby").permitAll()
+                        .requestMatchers("/api/providers/recommended").permitAll()
+                        .requestMatchers("/api/providers/ai-recommend").permitAll()
+                        .requestMatchers("/api/payments/webhook").permitAll()
+                        .requestMatchers("/api/payments/verify").permitAll()
+
+                        // ✅ STATIC FILES
+                        .requestMatchers("/", "/index.html", "/categories.html",
+                                "/css/**", "/js/**", "/images/**").permitAll()
+
+                        // ✅ ADMIN APIs
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // 🔥 FINAL RULE (always last)
+                        .anyRequest().authenticated()
                 )
                 .sessionManagement(sess ->
                         sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -52,12 +64,15 @@ public class SecurityConfig {          // ← removed @RequiredArgsConstructor
         return http.build();
     }
 
+    // 👤 LOAD USER FROM DATABASE
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + email));
     }
 
+    // 🔐 AUTHENTICATION PROVIDER
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -66,12 +81,14 @@ public class SecurityConfig {          // ← removed @RequiredArgsConstructor
         return provider;
     }
 
+    // 🔑 AUTH MANAGER (for login)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
 
+    // 🔒 PASSWORD ENCODER
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
