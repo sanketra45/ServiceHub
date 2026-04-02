@@ -26,7 +26,7 @@ export default function ProviderCard({ provider }) {
         
         {/* Verification Badge */}
         {provider.verified && (
-          <span className="absolute top-4 right-4 bg-white/95 dark:bg-slate-900/90
+          <span className="absolute top-4 right-4 bg-white dark:bg-slate-800/95 dark:bg-slate-900/90
                            backdrop-blur-md px-2.5 py-1.5 rounded-lg
                            flex items-center gap-1.5 text-xs font-semibold
                            text-emerald-600 dark:text-emerald-400 shadow-soft">
@@ -41,7 +41,7 @@ export default function ProviderCard({ provider }) {
         <div className="flex justify-between items-start mb-2">
           <h3 className="font-bold text-xl text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">{provider.name}</h3>
           
-          <span className="flex items-center gap-1 text-amber-500 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded-md text-sm">
+          <span className="flex items-center gap-1 text-amber-500 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-900/40 dark:bg-amber-900/30 px-2 py-1 rounded-md text-sm">
             <Star size={14} fill="currentColor" />
             {provider.averageRating?.toFixed(1) || "New"}
           </span>

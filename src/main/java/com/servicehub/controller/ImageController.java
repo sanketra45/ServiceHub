@@ -5,6 +5,7 @@ package com.servicehub.controller;
 import com.servicehub.model.ServiceProvider;
 import com.servicehub.model.User;
 import com.servicehub.repository.ServiceProviderRepository;
+import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,18 +24,15 @@ public class ImageController {
     private final FileStorageService fileStorageService;
     private final ServiceProviderRepository providerRepository;
 
-    // POST /api/images/profile — Provider uploads their profile photo
-    // Returns the public URL of the saved image
     @PostMapping("/profile")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<Map<String, String>> uploadProfilePhoto(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails userDetails, // ✅
             @RequestParam("file") MultipartFile file) {
 
-        ServiceProvider provider = providerRepository.findByUserId(user.getId())
+        ServiceProvider provider = providerRepository.findByUserId(userDetails.getUser().getId()) // ✅
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
-        // Delete old photo if it exists
         if (provider.getPhotoUrl() != null) {
             fileStorageService.deleteFile(provider.getPhotoUrl());
         }
@@ -46,25 +44,24 @@ public class ImageController {
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // POST /api/images/work — Provider uploads before/after work images
-    // Stored separately from profile photos in the 'work' subfolder
     @PostMapping("/work")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<Map<String, String>> uploadWorkImage(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("file") MultipartFile file) {
 
-        // Verify provider exists
-        providerRepository.findByUserId(user.getId())
+        ServiceProvider provider = providerRepository.findByUserId(userDetails.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
         String url = fileStorageService.storeFile(file, "work");
+        provider.getWorkImages().add(url); // ✅ persist to DB
+        providerRepository.save(provider);
+
         return ResponseEntity.ok(Map.of("url", url));
     }
 
-    // DELETE /api/images — Delete a specific image by URL
     @DeleteMapping
-    @PreAuthorize("hasRole('PROVIDER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('PROVIDER') or hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteImage(
             @RequestParam String fileUrl) {
         fileStorageService.deleteFile(fileUrl);

@@ -119,11 +119,17 @@ public class ProviderService {
 
         // Sort results
         if ("price".equalsIgnoreCase(sortBy)) {
-            results.sort(Comparator.comparingDouble(ServiceProvider::getHourlyRate));
+            results.sort((p1, p2) -> Double.compare(
+                    p1.getHourlyRate() != null ? p1.getHourlyRate() : 0.0,
+                    p2.getHourlyRate() != null ? p2.getHourlyRate() : 0.0));
         } else if ("rating".equalsIgnoreCase(sortBy)) {
-            results.sort(Comparator.comparingDouble(ServiceProvider::getAverageRating).reversed());
+            results.sort((p1, p2) -> Double.compare(
+                    p2.getAverageRating() != null ? p2.getAverageRating() : 0.0,
+                    p1.getAverageRating() != null ? p1.getAverageRating() : 0.0));
         } else if ("experience".equalsIgnoreCase(sortBy)) {
-            results.sort(Comparator.comparingInt(ServiceProvider::getExperienceYears).reversed());
+            results.sort((p1, p2) -> Integer.compare(
+                    p2.getExperienceYears() != null ? p2.getExperienceYears() : 0,
+                    p1.getExperienceYears() != null ? p1.getExperienceYears() : 0));
         }
 
         return results.stream().map(this::mapToResponse).collect(Collectors.toList());
@@ -198,6 +204,7 @@ public class ProviderService {
                 .verified(p.isVerified())
                 .photoUrl(p.getPhotoUrl())
                 .servicesOffered(p.getServicesOffered())
+                .workImages(p.getWorkImages()) // ✅ add this line
                 .build();
     }
 
@@ -262,5 +269,10 @@ public class ProviderService {
                 * Math.cos(Math.toRadians(lat2))
                 * Math.sin(dLng / 2) * Math.sin(dLng / 2);
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    public ServiceProvider getByUserId(Long userId) {
+        return providerRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Provider not found"));
     }
 }

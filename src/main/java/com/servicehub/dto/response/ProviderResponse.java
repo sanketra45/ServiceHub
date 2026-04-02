@@ -28,4 +28,5 @@ public class ProviderResponse {
     private boolean verified;
     private String photoUrl;
     private List<String> servicesOffered;
+    private List<String> workImages;
 }

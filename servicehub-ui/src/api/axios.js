@@ -5,19 +5,27 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT to every request automatically
+// ✅ Attach JWT to requests (except auth endpoints)
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // 🔥 Skip token for login & register
+  if (!config.url.includes("/auth")) {
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
   return config;
 });
 
-// Redirect to login on 401
+// ✅ Handle unauthorized errors
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.clear();
+      // 🔥 Clear invalid token and redirect
+      localStorage.removeItem("token");
       window.location.href = "/login";
     }
     return Promise.reject(err);

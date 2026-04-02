@@ -1,96 +1,145 @@
 package com.servicehub.config;
 
 import com.servicehub.repository.UserRepository;
-import org.springframework.context.annotation.*;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.*;
+import com.servicehub.security.CustomUserDetails;
+import com.servicehub.security.JwtAuthFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final UserRepository userRepository;
 
-    public SecurityConfig(@Lazy JwtAuthFilter jwtAuthFilter,
-                          UserRepository userRepository) {
-        this.jwtAuthFilter = jwtAuthFilter;
+    public SecurityConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // 🔐 MAIN SECURITY CONFIG
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           JwtAuthFilter jwtAuthFilter) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
+
+                // ✅ CORS enable
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ PUBLIC APIs
+                        // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/providers/search").permitAll()
-                        .requestMatchers("/api/providers/nearby").permitAll()
-                        .requestMatchers("/api/providers/recommended").permitAll()
-                        .requestMatchers("/api/providers/ai-recommend").permitAll()
-                        .requestMatchers("/api/payments/webhook").permitAll()
-                        .requestMatchers("/api/payments/verify").permitAll()
 
-                        // ✅ STATIC FILES
-                        .requestMatchers("/", "/index.html", "/categories.html",
-                                "/css/**", "/js/**", "/images/**").permitAll()
+                        // PUBLIC provider listing (customers need to browse & get recommendations)
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
 
-                        // ✅ ADMIN APIs
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // PROVIDER-only management
+                        .requestMatchers("/api/providers/me/**").hasAuthority("PROVIDER")
 
-                        // 🔥 FINAL RULE (always last)
+                        .requestMatchers("/uploads/**").permitAll()
+
+                        // CUSTOMER APIs
+                        .requestMatchers("/api/emergency/**").hasAuthority("CUSTOMER")
+
+                        // REVIEWS - both CUSTOMER (write) and PROVIDER (read) need access
+                        .requestMatchers("/api/reviews/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
+
+                        // BOOKINGS (both can access)
+                        .requestMatchers("/api/bookings/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
+
+                        // ADMIN
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+
+                        .requestMatchers("/api/images/**").hasAuthority("PROVIDER")
+
+                        // everything else
                         .anyRequest().authenticated()
                 )
+
                 .sessionManagement(sess ->
                         sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-    // 👤 LOAD USER FROM DATABASE
     @Bean
     public UserDetailsService userDetailsService() {
-        return email -> userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + email));
+        return email -> {
+            var user = userRepository.findByEmail(email)
+                    .orElseThrow(() ->
+                            new org.springframework.security.core.userdetails.UsernameNotFoundException(
+                                    "User not found: " + email));
+
+            return new CustomUserDetails(user);
+        };
     }
 
-    // 🔐 AUTHENTICATION PROVIDER
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService());
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
 
-    // 🔑 AUTH MANAGER (for login)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // 🔒 PASSWORD ENCODER
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public org.springframework.web.servlet.config.annotation.WebMvcConfigurer corsConfigurer() {
+        return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
+            }
+        };
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // 🔥 IMPORTANT
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source =
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }

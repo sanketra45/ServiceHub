@@ -7,7 +7,19 @@ export const getNearby        = (params) => api.get("/providers/nearby", { param
 export const createProfile    = (data)   => api.post("/providers/profile", data);
 export const updateProfile    = (data)   => api.put("/providers/profile", data);
 export const getMyProfile     = ()       => api.get("/providers/profile/me");
-export const uploadProfilePhoto = (form) => api.post("/images/profile", form);
-export const uploadWorkImage  = (form)   => api.post("/images/work", form);
+export const uploadProfilePhoto = (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api.post("/images/profile", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+};
+export const uploadWorkImage = (file) => {
+  const formData = new FormData();
+  formData.append("file", file); // ← key must match @RequestParam name in backend
+  return api.post("/images/work", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+};
 export const getFreeSlots     = (id, date) =>
   api.get(`/availability/${id}/free`, { params: { date } });

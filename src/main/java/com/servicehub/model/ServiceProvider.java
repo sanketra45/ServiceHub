@@ -33,9 +33,13 @@ public class ServiceProvider {
     private Double hourlyRate;
     private Integer experienceYears;
 
+    @Builder.Default
     private Double averageRating = 0.0;
+    
+    @Builder.Default
     private Integer totalReviews = 0;
 
+    @Builder.Default
     private boolean verified = false;
     private String photoUrl;
 
@@ -43,4 +47,10 @@ public class ServiceProvider {
     @CollectionTable(name = "provider_services", joinColumns = @JoinColumn(name = "provider_id"))
     @Column(name = "service")
     private List<String> servicesOffered;
+
+    @ElementCollection
+    @CollectionTable(name = "provider_work_images", joinColumns = @JoinColumn(name = "provider_id"))
+    @Column(name = "image_url")
+    @Builder.Default
+    private List<String> workImages = new java.util.ArrayList<>();
 }

@@ -67,18 +67,13 @@ export default function Home() {
     }
   }, [location.search]);
 
-  const handleSearch = async (svc = serviceType) => {
-    setLoading(true);
-    try {
-      const { data } = await searchProviders({
-        serviceType: svc || undefined,
-        city: city || undefined,
-      });
-      // We process the photo URLs for fallback if needed inside the Card or here.
-      setProviders(data);
-      document.getElementById("results")?.scrollIntoView({ behavior: "smooth" });
-    } catch { toast.error("Search failed"); }
-    finally { setLoading(false); }
+  const handleSearch = (svc = serviceType) => {
+    let url = "/browse?";
+    const params = new URLSearchParams();
+    if (svc) params.append("category", svc);
+    if (city) params.append("city", city);
+    
+    navigate(url + params.toString());
   };
 
   const handleEmergency = async (svc) => {
@@ -128,7 +123,7 @@ export default function Home() {
             </p>
 
             {/* Glass Search Bar */}
-            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl p-2.5 flex flex-col md:flex-row gap-2 shadow-xl border border-white dark:border-slate-800 max-w-2xl mx-auto lg:mx-0 mb-8">
+            <div className="bg-white dark:bg-slate-800/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl p-2.5 flex flex-col md:flex-row gap-2 shadow-xl border border-white dark:border-slate-800 max-w-2xl mx-auto lg:mx-0 mb-8">
               
               {/* Service Dropdown inside search */}
               <div className="flex-1 relative bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 flex items-center gap-3">
@@ -142,7 +137,7 @@ export default function Home() {
                 </div>
 
                 {open && (
-                  <div className="absolute top-[110%] left-0 w-full bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-50 py-2 max-h-60 overflow-y-auto">
+                  <div className="absolute top-[110%] left-0 w-full bg-white dark:bg-slate-800 dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-50 py-2 max-h-60 overflow-y-auto">
                     <div onClick={() => { setServiceType(""); setOpen(false); }} className="px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors">
                       All Services
                     </div>
@@ -201,7 +196,7 @@ export default function Home() {
               ))}
               
               {/* Floating Badge */}
-              <div className="absolute bottom-8 left-8 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white dark:border-slate-800 flex items-center gap-4 animate-bounce-slow">
+              <div className="absolute bottom-8 left-8 bg-white dark:bg-slate-800/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white dark:border-slate-800 flex items-center gap-4 animate-bounce-slow">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center">
                   <ShieldCheck className="text-green-600 dark:text-green-400 w-6 h-6" />
                 </div>
@@ -216,7 +211,7 @@ export default function Home() {
       </section>
 
       {/* ── STATS ── */}
-      <section className="bg-white dark:bg-slate-950 border-y border-slate-100 dark:border-slate-800 w-full">
+      <section className="bg-white dark:bg-slate-800 dark:bg-slate-950 border-y border-slate-100 dark:border-slate-800 w-full">
         <div className="max-w-7xl mx-auto px-6 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 divide-x-0 md:divide-x divide-slate-100 dark:divide-slate-800">
             {STATS.map(({ value, label }) => (
@@ -244,7 +239,7 @@ export default function Home() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">for your home</span>
             </h2>
           </div>
-          <button onClick={() => handleSearch()} className="btn-outline flex items-center gap-2 self-start md:self-auto">
+          <button onClick={() => navigate("/browse")} className="btn-outline flex items-center gap-2 self-start md:self-auto">
             View all services <ArrowRight size={16} />
           </button>
         </div>
@@ -252,7 +247,7 @@ export default function Home() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {SERVICES.map((svc) => (
             <div key={svc.name}
-              onClick={() => { setServiceType(svc.name); handleSearch(svc.name); }}
+              onClick={() => navigate(`/browse?category=${encodeURIComponent(svc.name)}`)}
               className="card group cursor-pointer border-0 shadow-soft hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
               <div className="h-40 overflow-hidden relative p-2">
                 <img src={svc.img} alt={svc.name} className="w-full h-full object-cover rounded-xl transition-transform duration-700 group-hover:scale-105" />
@@ -280,9 +275,9 @@ export default function Home() {
           
           <div className="relative z-10 px-8 py-14 lg:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-4 bg-red-500/30 w-fit px-3 py-1.5 rounded-full border border-red-400/50">
+              <div className="flex items-center gap-2 mb-4 bg-red-50 dark:bg-red-900/400/30 w-fit px-3 py-1.5 rounded-full border border-red-400/50">
                 <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white dark:bg-slate-800 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-red-100"></span>
                 </span>
                 <span className="text-red-50 text-xs font-bold uppercase tracking-widest">
@@ -301,9 +296,9 @@ export default function Home() {
             <div className="flex-1 flex flex-wrap gap-3 justify-center md:justify-end">
               {["Electrician","Plumber","AC Repair","Pest Control"].map((s) => (
                 <button key={s} onClick={() => handleEmergency(s)}
-                  className="px-6 py-4 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 
+                  className="px-6 py-4 rounded-xl bg-white dark:bg-slate-800/10 backdrop-blur-md border border-white/20 
                              text-white text-sm font-bold shadow-lg
-                             hover:bg-white hover:text-red-700 transition-all duration-300 flex items-center gap-3">
+                             hover:bg-white dark:bg-slate-800 hover:text-red-700 dark:text-red-300 transition-all duration-300 flex items-center gap-3">
                   <Zap size={16} className="text-red-300" />
                   Request {s}
                 </button>
@@ -334,7 +329,7 @@ export default function Home() {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-80 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 animate-pulse">
+              <div key={i} className="h-80 rounded-2xl bg-white dark:bg-slate-800 dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 animate-pulse">
                 <div className="h-48 bg-slate-200 dark:bg-slate-800" />
                 <div className="p-4 space-y-3">
                   <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-1/2" />
@@ -346,7 +341,7 @@ export default function Home() {
         ) : (
           <>
             {providers.length === 0 && recommended.length === 0 ? (
-              <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+              <div className="text-center py-20 bg-white dark:bg-slate-800 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
                 <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search size={24} className="text-slate-400 dark:text-slate-500" />
                 </div>
@@ -379,7 +374,7 @@ export default function Home() {
       </section>
 
       {/* ── WHY PROPAVILION ── */}
-      <section className="py-24 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
+      <section className="py-24 bg-white dark:bg-slate-800 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <p className="text-primary-600 text-xs font-bold uppercase tracking-widest mb-4">
@@ -395,7 +390,7 @@ export default function Home() {
                 icon: <ShieldCheck size={32} />,
                 title: "Verified Professionals",
                 desc: "Every provider passes a rigorous 20-point background check and skill assessment before joining our network.",
-                bg: "bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
+                bg: "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 dark:bg-blue-900/40 dark:text-blue-400"
               },
               {
                 icon: <Zap size={32} />,

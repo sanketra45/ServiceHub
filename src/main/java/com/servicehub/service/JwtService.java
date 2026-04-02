@@ -21,6 +21,9 @@ public class JwtService {
     private long expiration;
 
     private Key getSigningKey() {
+        if (secret == null || secret.length() < 32) {
+            throw new RuntimeException("JWT secret key is invalid or too short");
+        }
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 

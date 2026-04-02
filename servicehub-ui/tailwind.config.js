@@ -34,6 +34,10 @@ export default {
         },
         dark: '#0f172a',
         light: '#f8fafc',
+        navy: '#0a192f',
+        cream: '#fdfbf7',
+        gold: '#d4af37',
+        sage: '#879b77',
       },
       fontFamily: {
         sans: ['Inter', ...defaultTheme.fontFamily.sans],

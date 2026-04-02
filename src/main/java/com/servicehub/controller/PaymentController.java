@@ -23,7 +23,7 @@ public class PaymentController {
     // POST /api/payments/create-order?bookingId=1
     // Creates a Cashfree order and returns payment_session_id
     @PostMapping("/create-order")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<PaymentOrderResponse> createOrder(
             @RequestParam Long bookingId,
             @AuthenticationPrincipal User user) {
@@ -52,7 +52,7 @@ public class PaymentController {
 
     // POST /api/payments/refund/{bookingId}
     @PostMapping("/refund/{bookingId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('CUSTOMER')")
     public ResponseEntity<Map<String, String>> refund(
             @PathVariable Long bookingId,
             @RequestParam(required = false) String note) {

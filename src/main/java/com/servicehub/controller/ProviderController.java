@@ -1,11 +1,8 @@
 package com.servicehub.controller;
 
-// IT HANDELS ALL THE APIS RELATED TO PROVIDER SERVICES
-// IT HANDELS HTTP REQUESTS AND CONNECTS FRONTEND WITH THE SERVICE LAYER
-
 import com.servicehub.dto.request.ProviderRequest;
 import com.servicehub.dto.response.ProviderResponse;
-import com.servicehub.model.User;
+import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.ProviderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,40 +20,51 @@ public class ProviderController {
 
     private final ProviderService providerService;
 
-    // POST /api/providers/profile — Provider creates their profile
+    // ✅ CREATE PROFILE
     @PostMapping("/profile")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')") // ✅ FIX
     public ResponseEntity<ProviderResponse> createProfile(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ProviderRequest request) {
-        return ResponseEntity.ok(providerService.createProfile(user.getId(), request));
+
+        System.out.println("USER: " + userDetails);
+        System.out.println("USER ID: " + userDetails.getId());
+
+        return ResponseEntity.ok(
+                providerService.createProfile(userDetails.getId(), request)
+        );
     }
 
-    // PUT /api/providers/profile — Provider updates their profile
+    // ✅ UPDATE PROFILE
     @PutMapping("/profile")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')") // ✅ FIX
     public ResponseEntity<ProviderResponse> updateProfile(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ProviderRequest request) {
-        return ResponseEntity.ok(providerService.updateProfile(user.getId(), request));
+
+        return ResponseEntity.ok(
+                providerService.updateProfile(userDetails.getId(), request)
+        );
     }
 
-    // GET /api/providers/profile/me — Provider views their own profile
+    // ✅ GET MY PROFILE
     @GetMapping("/profile/me")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')") // ✅ FIX (MAIN ISSUE)
     public ResponseEntity<ProviderResponse> getMyProfile(
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(providerService.getMyProfile(user.getId()));
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                providerService.getMyProfile(userDetails.getId())
+        );
     }
 
-    // GET /api/providers/{id} — Anyone can view a provider's public profile
+    // ✅ PUBLIC GET
     @GetMapping("/{id}")
     public ResponseEntity<ProviderResponse> getById(@PathVariable Long id) {
         return ResponseEntity.ok(providerService.getById(id));
     }
 
-    // GET /api/providers/search?serviceType=Electrician&city=Mumbai&minRating=4&maxPrice=500&sortBy=rating
-    // Public search with optional filters — all params are optional
+    // ✅ SEARCH
     @GetMapping("/search")
     public ResponseEntity<List<ProviderResponse>> search(
             @RequestParam(required = false) String serviceType,
@@ -64,44 +72,52 @@ public class ProviderController {
             @RequestParam(required = false) Double minRating,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String sortBy) {
+
         return ResponseEntity.ok(
-                providerService.search(serviceType, city, minRating, maxPrice, sortBy));
+                providerService.search(serviceType, city, minRating, maxPrice, sortBy)
+        );
     }
 
-    // GET /api/providers/nearby?lat=19.07&lng=72.87&radiusKm=10
-    // Returns providers within a radius of given coordinates
+    // ✅ NEARBY
     @GetMapping("/nearby")
     public ResponseEntity<List<ProviderResponse>> nearby(
             @RequestParam Double lat,
             @RequestParam Double lng,
             @RequestParam(required = false) Double radiusKm) {
-        return ResponseEntity.ok(providerService.findNearby(lat, lng, radiusKm));
+
+        return ResponseEntity.ok(
+                providerService.findNearby(lat, lng, radiusKm)
+        );
     }
 
-    // GET /api/providers/recommended?serviceType=Plumber&city=Delhi
-    // Returns AI-scored top 10 providers
+    // ✅ RECOMMENDED
     @GetMapping("/recommended")
     public ResponseEntity<List<ProviderResponse>> recommended(
             @RequestParam(required = false) String serviceType,
             @RequestParam(required = false) String city) {
-        return ResponseEntity.ok(providerService.getRecommended(serviceType, city));
+
+        return ResponseEntity.ok(
+                providerService.getRecommended(serviceType, city)
+        );
     }
 
-    // PATCH /api/providers/{id}/verify — Admin toggles verified badge
+    // ✅ ADMIN VERIFY
     @PatchMapping("/{id}/verify")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')") // ✅ FIX
     public ResponseEntity<ProviderResponse> toggleVerify(@PathVariable Long id) {
         return ResponseEntity.ok(providerService.toggleVerification(id));
     }
 
-    // GET /api/providers/ai-recommend
+    // ✅ AI RECOMMEND
     @GetMapping("/ai-recommend")
     public ResponseEntity<List<ProviderResponse>> aiRecommend(
             @RequestParam(required = false) String serviceType,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lng) {
+
         return ResponseEntity.ok(
-                providerService.getAIRecommendations(serviceType, city, lat, lng));
+                providerService.getAIRecommendations(serviceType, city, lat, lng)
+        );
     }
 }

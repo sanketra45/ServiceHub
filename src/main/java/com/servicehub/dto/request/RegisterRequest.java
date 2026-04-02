@@ -14,4 +14,5 @@ public class RegisterRequest {
     @Size(min = 6) private String password;
     @NotBlank private String phone;
     @NotNull private Role role;  // CUSTOMER or PROVIDER
+    private String serviceType; // Required if role is PROVIDER
 }

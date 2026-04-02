@@ -12,17 +12,31 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [showPw, setShowPw]   = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const data = await login(form);
-      toast.success("Welcome back!");
-      navigate(data.role === "ADMIN" ? "/admin" :
-               data.role === "PROVIDER" ? "/provider-dashboard" : "/dashboard");
-    } catch { toast.error("Invalid credentials"); }
-    finally { setLoading(false); }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+      console.log("👉 Calling login API", form);
+    const data = await login({
+      email: form.email.trim().toLowerCase(),   // 🔥 FIX
+      password: form.password.trim(),           // 🔥 FIX
+    });
+
+    toast.success("Welcome back!");
+    navigate(
+      data.role === "ADMIN"
+        ? "/admin"
+        : data.role === "PROVIDER"
+        ? "/provider-dashboard"
+        : "/dashboard"
+    );
+  } catch {
+    toast.error("Invalid credentials");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex font-sans bg-slate-50 dark:bg-slate-950">
@@ -40,7 +54,7 @@ export default function Login() {
 
         <div className="absolute inset-0 flex flex-col justify-between p-12 z-10">
           <Link to="/" className="flex items-center gap-3 group w-fit">
-            <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
+            <div className="w-10 h-10 bg-white dark:bg-slate-800/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 group-hover:bg-white dark:bg-slate-800/20 transition-all">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="font-extrabold text-2xl tracking-tight text-white">
@@ -49,7 +63,7 @@ export default function Login() {
           </Link>
           
           <div className="max-w-md">
-             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 mb-6">
+             <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-800/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 mb-6">
                 <CheckCircle2 size={14} className="text-secondary-400" />
                 <span className="text-white text-xs font-bold tracking-wide">
                   Top Rated Platform
@@ -64,7 +78,7 @@ export default function Login() {
             </p>
           </div>
 
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl w-fit mt-8">
+          <div className="flex items-center gap-4 bg-white dark:bg-slate-800/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl w-fit mt-8">
             <div className="flex -space-x-4">
               {[
                 "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&auto=format&fit=crop",
@@ -87,7 +101,7 @@ export default function Login() {
       </div>
 
       {/* Right — form panel */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-16 bg-white dark:bg-slate-950 relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 py-16 bg-white dark:bg-slate-800 dark:bg-slate-950 relative">
         <div className="w-full max-w-md relative z-10">
           
           {/* Mobile Logo */}

@@ -1,6 +1,6 @@
 // src/pages/Register.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { Sparkles, CheckCircle2, User, Briefcase } from "lucide-react";
@@ -8,22 +8,33 @@ import { Sparkles, CheckCircle2, User, Briefcase } from "lucide-react";
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({
-    name: "", email: "", password: "", phone: "", role: "CUSTOMER"
+    name: "", email: "", password: "", phone: "", role: location.state?.role || "CUSTOMER", serviceType: ""
   });
   const [loading, setLoading] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e) => {
+      console.log("FORM:", form);
     e.preventDefault();
     setLoading(true);
+
+    console.log("FORM DATA:", form); // 🔥 DEBUG
+
     try {
-      const data = await register(form);
+      const res = await register(form);
+      const data = res.data;
+
       toast.success("Account created!");
       navigate(data.role === "PROVIDER" ? "/provider-dashboard" : "/dashboard");
+
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed");
-    } finally { setLoading(false); }
+      console.log(err.response);
+      toast.error(err.response?.data || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +52,7 @@ export default function Register() {
         
         <div className="absolute inset-0 flex flex-col justify-between p-12 z-10">
           <Link to="/" className="flex items-center gap-3 group w-fit">
-            <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
+            <div className="w-10 h-10 bg-white dark:bg-slate-800/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20 group-hover:bg-white dark:bg-slate-800/20 transition-all">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="font-extrabold text-2xl tracking-tight text-white">
@@ -78,7 +89,7 @@ export default function Register() {
           <div className="flex items-center gap-3">
              <div className="flex -space-x-2">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="w-8 h-8 rounded-full bg-white/20 border border-white/10 backdrop-blur-sm" />
+                <div key={i} className="w-8 h-8 rounded-full bg-white dark:bg-slate-800/20 border border-white/10 backdrop-blur-sm" />
               ))}
              </div>
              <span className="text-primary-200 font-medium text-sm">
@@ -90,7 +101,7 @@ export default function Register() {
 
       {/* Right — form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center
-                      px-6 py-12 lg:py-16 bg-white dark:bg-slate-950 overflow-y-auto">
+                      px-6 py-12 lg:py-16 bg-white dark:bg-slate-800 dark:bg-slate-950 overflow-y-auto">
         <div className="w-full max-w-md my-auto pb-8">
           
           {/* Mobile Logo */}
@@ -142,12 +153,32 @@ export default function Register() {
                   value={form[k]}
                   onChange={(e) => set(k, e.target.value)}
                   placeholder={ph}
-                  className="input py-3.5" />
+                  className="input py-3.5 w-full" />
               </div>
             ))}
+            
+            {form.role === "PROVIDER" && (
+              <div className="animate-fade-in-up">
+                <label className="label">Service Category</label>
+                <select required 
+                  value={form.serviceType} 
+                  onChange={(e) => set("serviceType", e.target.value)} 
+                  className="input py-3.5 w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
+                >
+                  <option value="">Select your specialty...</option>
+                  {[
+                     "Electrician", "Plumber", "Cleaner", "Carpenter", 
+                     "Painter", "Gardening", "Tutor", "AC Repair", "Pest Control"
+                  ].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">This instantly lists you in the marketplace.</p>
+              </div>
+            )}
 
-            <button type="submit" disabled={loading}
-              className="w-full btn-primary py-4 text-base font-bold shadow-xl shadow-primary-500/20 disabled:opacity-70 mt-6">
+            <button type="submit" disabled={loading || (form.role === "PROVIDER" && !form.serviceType)}
+              className="w-full btn-primary py-4 text-base font-bold shadow-xl shadow-primary-500/20 disabled:opacity-70 mt-6 transition-all">
               {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>

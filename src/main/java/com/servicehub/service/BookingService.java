@@ -1,17 +1,11 @@
 package com.servicehub.service;
 
-// THIS IS THE CORE LOGIC OF BOOKING SERVICE
-// IT HANDELS :
-// 1. creating a booking
-// 2. Status transitions (PENDING → ACCEPTED → IN_PROGRESS → COMPLETED / CANCELLED)
-// 3. Fetching booking history for customers and providers
-// 4. Emergency booking (finds first available verified provider)
-
 import com.servicehub.dto.request.BookingRequest;
 import com.servicehub.dto.response.BookingResponse;
 import com.servicehub.dto.response.ProviderResponse;
 import com.servicehub.model.*;
 import com.servicehub.model.enums.BookingStatus;
+import com.servicehub.model.enums.PaymentStatus;
 import com.servicehub.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,8 +22,6 @@ public class BookingService {
     private final UserRepository userRepository;
     private final EmailService emailService;
 
-    // --- Create a new booking ---
-    // Checks if the time slot is already taken before confirming
     public BookingResponse createBooking(Long customerId, BookingRequest request) {
         User customer = userRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
@@ -56,19 +48,20 @@ public class BookingService {
                 .address(request.getAddress())
                 .totalAmount(total)
                 .status(BookingStatus.PENDING)
+
+                // 🔥🔥🔥 MAIN FIX (DON’T MISS THIS)
+                .paymentStatus(PaymentStatus.PENDING)
+
                 .build();
 
-        Booking savedBooking = bookingRepository.save(booking);  // ← save first, keep reference
-        emailService.sendBookingConfirmation(savedBooking);       // ← then send emails
+        Booking savedBooking = bookingRepository.save(booking);
+
+        emailService.sendBookingConfirmation(savedBooking);
         emailService.sendNewBookingNotificationToProvider(savedBooking);
-        return mapToResponse(savedBooking);                       // ← return last
+
+        return mapToResponse(savedBooking);
     }
 
-    // --- Update booking status ---
-    // Rules:
-    //   PROVIDER can: PENDING → ACCEPTED, ACCEPTED → IN_PROGRESS, IN_PROGRESS → COMPLETED
-    //   CUSTOMER can: PENDING → CANCELLED
-    //   ADMIN can: anything
     public BookingResponse updateStatus(Long bookingId, BookingStatus newStatus,
                                         Long requesterId, String requesterRole) {
         Booking booking = bookingRepository.findById(bookingId)
@@ -77,25 +70,26 @@ public class BookingService {
         validateStatusTransition(booking, newStatus, requesterId, requesterRole);
         booking.setStatus(newStatus);
 
-        Booking updatedBooking = bookingRepository.save(booking);  // ← save first
-        emailService.sendStatusUpdateEmail(updatedBooking);         // ← then email
-        return mapToResponse(updatedBooking);                       // ← return last
+        Booking updatedBooking = bookingRepository.save(booking);
+        emailService.sendStatusUpdateEmail(updatedBooking);
+
+        return mapToResponse(updatedBooking);
     }
 
     private void validateStatusTransition(Booking booking, BookingStatus newStatus,
                                           Long requesterId, String role) {
         BookingStatus current = booking.getStatus();
 
-        if ("ROLE_ADMIN".equals(role)) return; // Admin can do anything
+        if ("ROLE_ADMIN".equals(role)) return;
 
         if ("ROLE_PROVIDER".equals(role)) {
             Long providerId = booking.getProvider().getUser().getId();
             if (!providerId.equals(requesterId)) {
                 throw new RuntimeException("Not your booking");
             }
-            // Provider valid transitions
-            if (!((current == BookingStatus.PENDING   && newStatus == BookingStatus.ACCEPTED)  ||
-                    (current == BookingStatus.ACCEPTED  && newStatus == BookingStatus.IN_PROGRESS) ||
+
+            if (!((current == BookingStatus.PENDING && newStatus == BookingStatus.ACCEPTED) ||
+                    (current == BookingStatus.ACCEPTED && newStatus == BookingStatus.IN_PROGRESS) ||
                     (current == BookingStatus.IN_PROGRESS && newStatus == BookingStatus.COMPLETED))) {
                 throw new RuntimeException("Invalid status transition for provider");
             }
@@ -105,37 +99,32 @@ public class BookingService {
             if (!booking.getCustomer().getId().equals(requesterId)) {
                 throw new RuntimeException("Not your booking");
             }
-            // Customer can only cancel a PENDING booking
+
             if (!(current == BookingStatus.PENDING && newStatus == BookingStatus.CANCELLED)) {
                 throw new RuntimeException("Customer can only cancel pending bookings");
             }
         }
     }
 
-    // --- Get all bookings for a customer (booking history) ---
     public List<BookingResponse> getCustomerBookings(Long customerId) {
         return bookingRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
-    // --- Get all bookings assigned to a provider ---
     public List<BookingResponse> getProviderBookings(Long userId) {
         ServiceProvider provider = providerRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Provider not found"));
+
         return bookingRepository.findByProviderId(provider.getId())
                 .stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
-    // --- Get single booking by ID ---
     public BookingResponse getById(Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 
-    // --- Emergency booking ---
-    // Finds verified providers of a type in a city and returns
-    // the highest-rated available one instantly
     public ProviderResponse emergencyBook(String serviceType, String city,
                                           com.servicehub.service.ProviderService providerService) {
         return providerRepository
@@ -148,7 +137,6 @@ public class BookingService {
                         "No available verified providers for " + serviceType + " in " + city));
     }
 
-    // --- Helper: maps entity to response DTO ---
     private BookingResponse mapToResponse(Booking b) {
         return BookingResponse.builder()
                 .id(b.getId())

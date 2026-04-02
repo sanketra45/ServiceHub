@@ -1,12 +1,12 @@
 package com.servicehub.controller;
 
-// IT HANDELS ALL THE APIS RELATED TO THE BOOKING SYSTEM
+// IT HANDLES ALL THE APIS RELATED TO THE BOOKING SYSTEM
 
 import com.servicehub.dto.request.BookingRequest;
 import com.servicehub.dto.response.BookingResponse;
 import com.servicehub.dto.response.ProviderResponse;
-import com.servicehub.model.User;
 import com.servicehub.model.enums.BookingStatus;
+import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.BookingService;
 import com.servicehub.service.ProviderService;
 import jakarta.validation.Valid;
@@ -26,56 +26,82 @@ public class BookingController {
     private final BookingService bookingService;
     private final ProviderService providerService;
 
-    // POST /api/bookings — Customer creates a booking
+    // 🔥 CREATE BOOKING (CUSTOMER / PROVIDER)
     @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'PROVIDER')") // ✅ FIX
     public ResponseEntity<BookingResponse> create(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody BookingRequest request) {
-        return ResponseEntity.ok(bookingService.createBooking(user.getId(), request));
+
+        Long userId = userDetails.getUser().getId();
+
+        return ResponseEntity.ok(
+                bookingService.createBooking(userId, request)
+        );
     }
 
-    // GET /api/bookings/my — Customer sees their own booking history
+    // 🔥 CUSTOMER BOOKINGS
     @GetMapping("/my")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')") // ✅ FIX
     public ResponseEntity<List<BookingResponse>> myBookings(
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(bookingService.getCustomerBookings(user.getId()));
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+
+        return ResponseEntity.ok(
+                bookingService.getCustomerBookings(userId)
+        );
     }
 
-    // GET /api/bookings/provider — Provider sees bookings assigned to them
+    // 🔥 PROVIDER BOOKINGS
     @GetMapping("/provider")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')") // ✅ FIX (MAIN)
     public ResponseEntity<List<BookingResponse>> providerBookings(
-            @AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(bookingService.getProviderBookings(user.getId()));
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+
+        return ResponseEntity.ok(
+                bookingService.getProviderBookings(userId)
+        );
     }
 
-    // GET /api/bookings/{id} — Get a single booking (customer, provider, or admin)
+    // 🔥 GET BOOKING BY ID (PUBLIC / AUTH OPTIONAL)
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponse> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingService.getById(id));
+        return ResponseEntity.ok(
+                bookingService.getById(id)
+        );
     }
 
-    // PATCH /api/bookings/{id}/status?status=ACCEPTED
-    // Provider moves status forward; Customer can cancel
+    // 🔥 UPDATE STATUS (CUSTOMER / PROVIDER)
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER','PROVIDER','ADMIN')") // ✅ FIX
     public ResponseEntity<BookingResponse> updateStatus(
             @PathVariable Long id,
             @RequestParam BookingStatus status,
-            @AuthenticationPrincipal User user) {
-        String role = user.getAuthorities().iterator().next().getAuthority();
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Long userId = userDetails.getUser().getId();
+
+        String role = userDetails.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+
         return ResponseEntity.ok(
-                bookingService.updateStatus(id, status, user.getId(), role));
+                bookingService.updateStatus(id, status, userId, role)
+        );
     }
 
-    // GET /api/bookings/emergency?serviceType=Electrician&city=Mumbai
-    // Returns the best available verified provider immediately
+    // 🔥 EMERGENCY BOOKING (PUBLIC)
     @GetMapping("/emergency")
     public ResponseEntity<ProviderResponse> emergency(
             @RequestParam String serviceType,
             @RequestParam String city) {
+
         return ResponseEntity.ok(
-                bookingService.emergencyBook(serviceType, city, providerService));
+                bookingService.emergencyBook(serviceType, city, providerService)
+        );
     }
 }

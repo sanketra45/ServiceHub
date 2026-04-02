@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 public class BookingRequest {
@@ -20,10 +21,12 @@ public class BookingRequest {
     private String description;
 
     @NotNull(message = "Booking date is required")
-    @Future(message = "Booking date must be in the future")
+    @FutureOrPresent(message = "Booking date must be today or future") // 🔥 FIXED
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate bookingDate;
 
     @NotNull(message = "Time slot is required")
+    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime timeSlot;
 
     @NotBlank(message = "Address is required")

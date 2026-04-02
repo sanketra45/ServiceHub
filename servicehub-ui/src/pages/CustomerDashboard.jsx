@@ -10,11 +10,11 @@ import { Star, Zap, Plus, Clock, CheckCircle,
 import toast from "react-hot-toast";
 
 const STATUS_META = {
-  PENDING:     { color: "bg-amber-100 text-amber-700", icon: Clock,       dot: "bg-amber-400" },
-  ACCEPTED:    { color: "bg-blue-100 text-blue-700",   icon: CheckCircle, dot: "bg-blue-400" },
-  IN_PROGRESS: { color: "bg-violet-100 text-violet-700", icon: Loader,    dot: "bg-violet-400" },
-  COMPLETED:   { color: "bg-sage/10 text-sage",        icon: CheckCircle, dot: "bg-sage" },
-  CANCELLED:   { color: "bg-red-100 text-red-600",     icon: XCircle,     dot: "bg-red-400" },
+  PENDING:     { color: "bg-amber-100 text-amber-700 dark:text-amber-300", icon: Clock,       dot: "bg-amber-400" },
+  ACCEPTED:    { color: "bg-blue-100 text-blue-700 dark:text-blue-300",   icon: CheckCircle, dot: "bg-blue-400" },
+  IN_PROGRESS: { color: "bg-violet-100 text-violet-700 dark:text-violet-300", icon: Loader,    dot: "bg-violet-400" },
+  COMPLETED:   { color: "bg-sage/10 text-sage dark:text-emerald-500",        icon: CheckCircle, dot: "bg-sage dark:bg-emerald-600/90" },
+  CANCELLED:   { color: "bg-red-100 text-red-600 dark:text-red-400",     icon: XCircle,     dot: "bg-red-400" },
 };
 
 export default function CustomerDashboard() {
@@ -29,7 +29,7 @@ export default function CustomerDashboard() {
 
   useEffect(() => {
     getMyBookings().then((r) => setBookings(r.data)).catch(() => {});
-    getMyEmergencies().then((r) => setEmergencies(r.data)).catch(() => {});
+//     getMyEmergencies().then((r) => setEmergencies(r.data)).catch(() => {});
   }, []);
 
   const handleCancel = async (id) => {
@@ -52,44 +52,44 @@ export default function CustomerDashboard() {
   };
 
   const stats = [
-    { label: "Total Bookings", value: bookings.length, color: "text-navy" },
+    { label: "Total Bookings", value: bookings.length, color: "text-navy dark:text-white" },
     { label: "Completed",
       value: bookings.filter((b) => b.status === "COMPLETED").length,
-      color: "text-sage" },
+      color: "text-sage dark:text-emerald-500" },
     { label: "Pending",
       value: bookings.filter((b) => b.status === "PENDING").length,
-      color: "text-amber-600" },
+      color: "text-amber-600 dark:text-amber-400" },
   ];
 
   return (
-    <div className="min-h-screen bg-cream pt-20">
+    <div className="min-h-screen bg-cream dark:bg-slate-950 pt-20">
 
       {/* Header */}
-      <div className="bg-navy px-8 py-12">
+      <div className="bg-navy dark:bg-slate-900 px-8 py-12">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-gold text-xs uppercase tracking-widest mb-2">
+              <p className="text-gold dark:text-amber-400 text-xs uppercase tracking-widest mb-2">
                 Welcome back
               </p>
-              <h1 className="font-serif text-4xl text-cream mb-6">
+              <h1 className="font-serif text-4xl text-cream dark:text-slate-100 mb-6">
                 {user?.name}
               </h1>
               <div className="flex gap-8">
                 {stats.map(({ label, value, color }) => (
                   <div key={label}>
-                    <p className={`font-serif text-3xl ${color} text-cream`}>
+                    <p className={`font-serif text-3xl ${color} text-cream dark:text-slate-100`}>
                       {value}
                     </p>
-                    <p className="text-cream/40 text-xs mt-0.5">{label}</p>
+                    <p className="text-cream/40 dark:text-slate-500 text-xs mt-0.5">{label}</p>
                   </div>
                 ))}
               </div>
             </div>
             <button onClick={() => navigate("/")}
-              className="flex items-center gap-2 bg-gold text-navy
+              className="flex items-center gap-2 bg-gold text-navy dark:text-white
                          px-5 py-2.5 rounded-full font-semibold text-sm
-                         hover:bg-cream transition-all">
+                         hover:bg-cream dark:bg-slate-950 transition-all">
               <Plus size={15} /> New Booking
             </button>
           </div>
@@ -107,8 +107,8 @@ export default function CustomerDashboard() {
             <button key={key} onClick={() => setTab(key)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold
                          transition ${tab === key
-                ? "bg-navy text-cream"
-                : "bg-white border border-black/10 text-navy/50"}`}>
+                ? "bg-navy dark:bg-slate-900 text-cream dark:text-slate-100"
+                : "bg-white dark:bg-slate-800 border border-black/10 dark:border-slate-600 text-navy/50 dark:text-slate-400"}`}>
               {label}
             </button>
           ))}
@@ -118,9 +118,9 @@ export default function CustomerDashboard() {
         {tab === "bookings" && (
           <div className="space-y-4">
             {bookings.length === 0 && (
-              <div className="text-center py-20 bg-white rounded-3xl
-                              border border-black/5">
-                <p className="font-serif text-2xl text-navy/30 mb-2">
+              <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-3xl
+                              border border-black/5 dark:border-slate-700">
+                <p className="font-serif text-2xl text-navy/30 dark:text-slate-500 mb-2">
                   No bookings yet
                 </p>
                 <button onClick={() => navigate("/?tab=search")}
@@ -135,7 +135,7 @@ export default function CustomerDashboard() {
               const Icon = meta.icon;
               return (
                 <div key={b.id}
-                  className="bg-white rounded-3xl border border-black/5
+                  className="bg-white dark:bg-slate-800 rounded-3xl border border-black/5 dark:border-slate-700
                              shadow-sm overflow-hidden">
                   {/* Status bar */}
                   <div className={`h-1 ${meta.dot}`} />
@@ -143,7 +143,7 @@ export default function CustomerDashboard() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-serif text-xl text-navy">
+                          <h3 className="font-serif text-xl text-navy dark:text-white">
                             {b.serviceType}
                           </h3>
                           <span className={`flex items-center gap-1.5 px-3
@@ -153,21 +153,21 @@ export default function CustomerDashboard() {
                             {b.status.replace("_", " ")}
                           </span>
                         </div>
-                        <p className="text-navy/50 text-sm">
+                        <p className="text-navy/50 dark:text-slate-400 text-sm">
                           with <strong className="text-navy/70">
                             {b.providerName}
                           </strong>{" "}
                           · {b.bookingDate} at {b.timeSlot}
                         </p>
-                        <p className="text-navy/40 text-sm mt-0.5">
+                        <p className="text-navy/40 dark:text-slate-400 text-sm mt-0.5">
                           {b.address}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-serif text-2xl text-navy">
+                        <p className="font-serif text-2xl text-navy dark:text-white">
                           ₹{b.totalAmount}
                         </p>
-                        <p className="text-navy/30 text-xs">estimated</p>
+                        <p className="text-navy/30 dark:text-slate-500 text-xs">estimated</p>
                       </div>
                     </div>
 
@@ -176,7 +176,7 @@ export default function CustomerDashboard() {
                         <button onClick={() => handleCancel(b.id)}
                           className="px-4 py-2 rounded-xl border
                                      border-red-200 text-red-500 text-sm
-                                     font-medium hover:bg-red-50 transition">
+                                     font-medium hover:bg-red-50 dark:bg-red-900/40 transition">
                           Cancel
                         </button>
                       )}
@@ -186,8 +186,8 @@ export default function CustomerDashboard() {
                             providerId: b.providerId, rating: 5, comment: ""
                           })}
                           className="flex items-center gap-1.5 px-4 py-2
-                                     rounded-xl bg-gold/10 text-gold
-                                     border border-gold/20 text-sm
+                                     rounded-xl bg-gold/10 dark:bg-amber-900/20 text-gold dark:text-amber-400
+                                     border border-gold/20 dark:border-amber-700/30 text-sm
                                      font-semibold hover:bg-gold/20 transition">
                           <Star size={13} fill="currentColor" />
                           Leave Review
@@ -195,9 +195,9 @@ export default function CustomerDashboard() {
                       )}
                       <button
                         onClick={() => navigate(`/provider/${b.providerId}`)}
-                        className="px-4 py-2 rounded-xl border border-black/10
-                                   text-navy/60 text-sm font-medium
-                                   hover:bg-navy/5 transition">
+                        className="px-4 py-2 rounded-xl border border-black/10 dark:border-slate-600
+                                   text-navy/60 dark:text-slate-300 text-sm font-medium
+                                   hover:bg-navy/5 dark:hover:bg-slate-800 transition">
                         View Provider
                       </button>
                     </div>
@@ -212,37 +212,37 @@ export default function CustomerDashboard() {
         {tab === "emergencies" && (
           <div className="space-y-4">
             {emergencies.length === 0 && (
-              <div className="text-center py-20 bg-white rounded-3xl
-                              border border-black/5">
-                <p className="font-serif text-2xl text-navy/30">
+              <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-3xl
+                              border border-black/5 dark:border-slate-700">
+                <p className="font-serif text-2xl text-navy/30 dark:text-slate-500">
                   No emergency requests
                 </p>
               </div>
             )}
             {emergencies.map((e) => (
               <div key={e.id}
-                className="bg-white rounded-3xl border border-red-100
+                className="bg-white dark:bg-slate-800 rounded-3xl border border-red-100
                            shadow-sm p-7">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-2xl bg-red-50
+                  <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/40
                                   flex items-center justify-center">
                     <Zap size={18} className="text-red-500" />
                   </div>
                   <div>
-                    <h3 className="font-serif text-xl text-navy">
+                    <h3 className="font-serif text-xl text-navy dark:text-white">
                       {e.serviceType}
                     </h3>
-                    <p className="text-navy/40 text-xs">
+                    <p className="text-navy/40 dark:text-slate-400 text-xs">
                       {new Date(e.requestedAt).toLocaleString()}
                     </p>
                   </div>
-                  <span className="ml-auto px-3 py-1 bg-red-50 text-red-600
+                  <span className="ml-auto px-3 py-1 bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400
                                    rounded-full text-xs font-semibold">
                     {e.status}
                   </span>
                 </div>
                 {e.assignedProvider && (
-                  <p className="text-navy/60 text-sm">
+                  <p className="text-navy/60 dark:text-slate-300 text-sm">
                     Assigned to: <strong>{e.assignedProvider.user?.name}</strong>
                   </p>
                 )}
@@ -256,12 +256,12 @@ export default function CustomerDashboard() {
       {review.show && (
         <div className="fixed inset-0 bg-navy/60 backdrop-blur-sm flex
                         items-center justify-center z-50 p-4">
-          <div className="bg-cream rounded-4xl p-10 max-w-md w-full
+          <div className="bg-cream dark:bg-slate-950 rounded-4xl p-10 max-w-md w-full
                           shadow-2xl">
-            <h2 className="font-serif text-3xl text-navy mb-2">
+            <h2 className="font-serif text-3xl text-navy dark:text-white mb-2">
               Leave a Review
             </h2>
-            <p className="text-navy/50 text-sm mb-8">
+            <p className="text-navy/50 dark:text-slate-400 text-sm mb-8">
               Share your experience with this professional
             </p>
 
@@ -271,7 +271,7 @@ export default function CustomerDashboard() {
                   onClick={() => setReview((r) => ({ ...r, rating: s }))}>
                   <Star size={32}
                     className={`transition ${s <= review.rating
-                      ? "text-gold" : "text-navy/10"}`}
+                      ? "text-gold dark:text-amber-400" : "text-navy/10"}`}
                     fill="currentColor" />
                 </button>
               ))}
