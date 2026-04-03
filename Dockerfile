@@ -1,17 +1,20 @@
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-
-WORKDIR /app
-
-COPY . .
-
-RUN mvn clean package -DskipTests
-
+# Use Java 17
 FROM eclipse-temurin:17-jdk
 
+# Set working directory
 WORKDIR /app
 
-COPY --from=build /app/target/servicehub-0.0.1-SNAPSHOT.jar app.jar
+# Copy everything from repo
+COPY . .
 
+# Give permission to mvnw (important for Linux)
+RUN chmod +x mvnw
+
+# Build the project (skip tests for faster build)
+RUN ./mvnw clean package -DskipTests
+
+# Expose port (Spring Boot)
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the jar
+CMD ["java", "-jar", "target/servicehub-0.0.1-SNAPSHOT.jar"]
