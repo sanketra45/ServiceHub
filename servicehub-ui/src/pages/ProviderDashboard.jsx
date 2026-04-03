@@ -1,10 +1,10 @@
 // src/pages/ProviderDashboard.jsx
 import { useEffect, useState, useRef } from "react";
 import { getProviderBookings, updateStatus } from "../api/bookings";
-import { getMyProfile, uploadProfilePhoto, uploadWorkImage, createProfile, updateProfile } from "../api/providers";
+import { getMyProfile, uploadProfilePhoto, uploadWorkImage, createProfile, updateProfile, getProviderAvailability, addProviderSlot, deleteProviderSlot } from "../api/providers";
 import { useAuth } from "../context/AuthContext";
 import { Upload, Camera, BadgeCheck, Star,
-         TrendingUp, Clock } from "lucide-react";
+         TrendingUp, Clock, CalendarDays, Trash2, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 
 const NEXT = { PENDING: "ACCEPTED", ACCEPTED: "IN_PROGRESS", IN_PROGRESS: "COMPLETED" };
@@ -19,6 +19,10 @@ export default function ProviderDashboard() {
   const [profile, setProfile]     = useState(null);
   const [workImgs, setWorkImgs]   = useState([]);
   const [tab, setTab]             = useState("bookings");
+  
+  const [availability, setAvailability] = useState([]);
+  const [slotForm, setSlotForm]   = useState({ dayOfWeek: "MONDAY", startTime: "09:00", endTime: "17:00" });
+  const [isAddingSlot, setIsAddingSlot] = useState(false);
   
   const [profileForm, setProfileForm] = useState({
     serviceType: "", city: "", hourlyRate: "", experienceYears: "", description: ""
@@ -50,6 +54,14 @@ useEffect(() => {
     }
   });
 }, []);
+
+useEffect(() => {
+  if (profile && tab === "availability") {
+    getProviderAvailability(profile.id)
+      .then(r => setAvailability(r.data))
+      .catch(() => {});
+  }
+}, [profile, tab]);
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -85,6 +97,35 @@ useEffect(() => {
       setBookings((b) => b.map((x) => x.id === id ? data : x));
       toast.success(`Marked as ${s.replace("_", " ")}`);
     } catch { toast.error("Update failed"); }
+  };
+
+  const handleAddSlot = async (e) => {
+    e.preventDefault();
+    setIsAddingSlot(true);
+    try {
+      const payload = {
+        dayOfWeek: slotForm.dayOfWeek,
+        startTime: slotForm.startTime.length === 5 ? `${slotForm.startTime}:00` : slotForm.startTime,
+        endTime: slotForm.endTime.length === 5 ? `${slotForm.endTime}:00` : slotForm.endTime
+      };
+      const { data } = await addProviderSlot(payload);
+      setAvailability((prev) => [...prev, data]);
+      toast.success("Slot added successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add slot");
+    } finally {
+      setIsAddingSlot(false);
+    }
+  };
+
+  const handleDeleteSlot = async (id) => {
+    try {
+      await deleteProviderSlot(id);
+      setAvailability((prev) => prev.filter(s => s.id !== id));
+      toast.success("Slot removed");
+    } catch {
+      toast.error("Failed to remove slot");
+    }
   };
 
 const handlePhotoUpload = async (e) => {
@@ -191,7 +232,7 @@ const handleWorkUpload = async (e) => {
       {/* Body */}
       <div className="max-w-5xl mx-auto px-8 py-10">
         <div className="flex gap-2 mb-8">
-          {["profile", "bookings", "gallery"].map((t) => (
+          {["profile", "availability", "bookings", "gallery"].map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold
                          capitalize transition ${tab === t
@@ -201,6 +242,79 @@ const handleWorkUpload = async (e) => {
             </button>
           ))}
         </div>
+
+        {/* Availability tab */}
+        {tab === "availability" && (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-black/5 dark:border-slate-700 shadow-sm">
+            <h2 className="font-serif text-2xl text-navy dark:text-white mb-2">Availability Schedule</h2>
+            <p className="text-navy/50 dark:text-slate-400 text-sm mb-6">Manage when customers can book you.</p>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Form Column */}
+              <div className="lg:col-span-1">
+                <form onSubmit={handleAddSlot} className="bg-navy/5 dark:bg-slate-900 border border-navy/10 dark:border-slate-700 p-5 rounded-2xl space-y-4">
+                  <h3 className="font-semibold text-navy dark:text-white mb-2">Add New Slot</h3>
+                  
+                  <div>
+                    <label className="label text-xs font-semibold text-navy/70 dark:text-slate-400 mb-1 block">Day of Week</label>
+                    <select required value={slotForm.dayOfWeek} onChange={(e) => setSlotForm({...slotForm, dayOfWeek: e.target.value})} className="input py-2.5 w-full rounded-xl px-3 outline-none focus:border-primary-500 text-sm">
+                      {["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].map(d => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label text-xs font-semibold text-navy/70 dark:text-slate-400 mb-1 block">Start Time</label>
+                      <input type="time" required value={slotForm.startTime} onChange={(e) => setSlotForm({...slotForm, startTime: e.target.value})} className="input py-2.5 w-full rounded-xl px-3 outline-none focus:border-primary-500 text-sm" />
+                    </div>
+                    <div>
+                      <label className="label text-xs font-semibold text-navy/70 dark:text-slate-400 mb-1 block">End Time</label>
+                      <input type="time" required value={slotForm.endTime} onChange={(e) => setSlotForm({...slotForm, endTime: e.target.value})} className="input py-2.5 w-full rounded-xl px-3 outline-none focus:border-primary-500 text-sm" />
+                    </div>
+                  </div>
+
+                  <button type="submit" disabled={isAddingSlot} className="btn-primary py-2.5 px-4 w-full text-sm flex items-center justify-center gap-2 mt-2">
+                    <Plus size={16} /> {isAddingSlot ? "Adding..." : "Add Slot"}
+                  </button>
+                </form>
+              </div>
+
+              {/* Slots List Column */}
+              <div className="lg:col-span-2 space-y-3">
+                {availability.length === 0 ? (
+                  <div className="text-center py-10 border border-dashed border-navy/20 dark:border-slate-700 rounded-2xl">
+                    <CalendarDays size={32} className="mx-auto text-navy/30 dark:text-slate-600 mb-3" />
+                    <p className="text-navy/60 dark:text-slate-400 text-sm">No availability slots added yet.</p>
+                  </div>
+                ) : (
+                  ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"].map((day) => {
+                    const daySlots = availability.filter((s) => s.dayOfWeek === day);
+                    if (daySlots.length === 0) return null;
+                    return (
+                      <div key={day} className="border border-navy/10 dark:border-slate-700 rounded-2xl p-4 bg-white dark:bg-slate-800">
+                        <h4 className="font-semibold text-navy dark:text-white text-sm mb-3">{day}</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {daySlots.map(slot => (
+                            <div key={slot.id} className="flex items-center justify-between bg-navy/5 dark:bg-slate-900 border border-navy/10 dark:border-slate-700 rounded-lg px-3 py-2">
+                              <span className="text-xs font-medium text-navy/70 dark:text-slate-300">
+                                {slot.startTime.substring(0,5)} - {slot.endTime.substring(0,5)}
+                              </span>
+                              <button onClick={() => handleDeleteSlot(slot.id)} className="text-red-400 hover:text-red-600 transition p-1" title="Remove slot">
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bookings tab */}
         {tab === "bookings" && (

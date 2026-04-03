@@ -4,7 +4,7 @@ package com.servicehub.controller;
 
 import com.servicehub.dto.request.AvailabilityRequest;
 import com.servicehub.dto.response.AvailabilityResponse;
-import com.servicehub.model.User;
+import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.AvailabilityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class AvailabilityController {
     @PostMapping
     @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<AvailabilityResponse> addSlot(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody AvailabilityRequest request) {
         return ResponseEntity.ok(availabilityService.addSlot(user.getId(), request));
     }
@@ -67,7 +67,7 @@ public class AvailabilityController {
     @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<AvailabilityResponse> toggle(
             @PathVariable Long slotId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(availabilityService.toggleSlot(slotId, user.getId()));
     }
 
@@ -76,7 +76,7 @@ public class AvailabilityController {
     @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<Void> delete(
             @PathVariable Long slotId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails user) {
         availabilityService.deleteSlot(slotId, user.getId());
         return ResponseEntity.noContent().build();
     }
@@ -84,7 +84,7 @@ public class AvailabilityController {
     // DELETE /api/availability/clear — Provider wipes their full schedule
     @DeleteMapping("/clear")
     @PreAuthorize("hasAuthority('PROVIDER')")
-    public ResponseEntity<Void> clearSchedule(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> clearSchedule(@AuthenticationPrincipal CustomUserDetails user) {
         availabilityService.clearSchedule(user.getId());
         return ResponseEntity.noContent().build();
     }

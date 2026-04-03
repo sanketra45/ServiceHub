@@ -3,7 +3,7 @@ package com.servicehub.controller;
 
 import com.servicehub.dto.response.PaymentOrderResponse;
 import com.servicehub.dto.response.PaymentStatusResponse;
-import com.servicehub.model.User;
+import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.CashfreePaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class PaymentController {
     @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<PaymentOrderResponse> createOrder(
             @RequestParam Long bookingId,
-            @AuthenticationPrincipal User user) {
+            @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(cashfreePaymentService.createOrder(bookingId));
     }
 

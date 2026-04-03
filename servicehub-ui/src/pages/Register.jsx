@@ -23,11 +23,10 @@ export default function Register() {
     console.log("FORM DATA:", form); // 🔥 DEBUG
 
     try {
-      const res = await register(form);
-      const data = res.data;
+      await register(form);
 
       toast.success("Account created!");
-      navigate(data.role === "PROVIDER" ? "/provider-dashboard" : "/dashboard");
+      navigate("/");
 
     } catch (err) {
       console.log(err.response);

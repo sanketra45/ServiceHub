@@ -23,3 +23,8 @@ export const uploadWorkImage = (file) => {
 };
 export const getFreeSlots     = (id, date) =>
   api.get(`/availability/${id}/free`, { params: { date } });
+
+// Availability Endpoints
+export const getProviderAvailability = (providerId) => api.get(`/availability/${providerId}`);
+export const addProviderSlot = (data) => api.post("/availability", data);
+export const deleteProviderSlot = (slotId) => api.delete(`/availability/${slotId}`);
