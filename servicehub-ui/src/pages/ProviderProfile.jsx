@@ -42,7 +42,7 @@ export default function ProviderProfile() {
       {/* Hero banner */}
       <div className="relative h-80 overflow-hidden">
         <img src={photo} alt={provider.name}
-          className="w-full h-full object-cover" />
+          className="w-full h-full object-cover object-[center_30%]" />
         <div className="absolute inset-0 bg-gradient-to-t
                         from-navy/90 via-navy/40 to-transparent" />
 
@@ -122,6 +122,24 @@ export default function ProviderProfile() {
                                  border border-navy/10">
                       {s}
                     </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Work Gallery */}
+            {provider.workImages && provider.workImages.length > 0 && (
+              <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-black/5 dark:border-slate-700 shadow-sm">
+                <h2 className="font-serif text-2xl text-navy dark:text-white mb-5">
+                  Work Gallery
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {provider.workImages.map((url, i) => (
+                    <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-navy/5 dark:bg-slate-900 group">
+                      <img src={`${import.meta.env.VITE_API_URL}${url}`}
+                        alt={`Work ${i + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    </div>
                   ))}
                 </div>
               </div>
