@@ -10,15 +10,21 @@ export const getMyProfile     = ()       => api.get("/providers/profile/me");
 export const uploadProfilePhoto = (file) => {
   const formData = new FormData();
   formData.append("file", file);
+  const token = localStorage.getItem("token");
   return api.post("/images/profile", formData, {
-    headers: { "Content-Type": "multipart/form-data" }
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 };
 export const uploadWorkImage = (file) => {
   const formData = new FormData();
-  formData.append("file", file); // ← key must match @RequestParam name in backend
+  formData.append("file", file);
+  const token = localStorage.getItem("token");
   return api.post("/images/work", formData, {
-    headers: { "Content-Type": "multipart/form-data" }
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
 };
 export const getFreeSlots     = (id, date) =>

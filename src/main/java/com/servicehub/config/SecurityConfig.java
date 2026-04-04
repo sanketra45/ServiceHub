@@ -67,7 +67,7 @@ public class SecurityConfig {
                         // ADMIN
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 
-                        .requestMatchers("/api/images/**").hasAuthority("PROVIDER")
+                        .requestMatchers("/api/images/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
@@ -124,8 +124,8 @@ public class SecurityConfig {
                 "*" // Safe fallback with allowedOriginPatterns
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L); // 1 hour
 
