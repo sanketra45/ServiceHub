@@ -32,9 +32,9 @@ export default function ProviderProfile() {
     </div>
   );
 
-  const photo = provider.photoUrl
-    ? (provider.photoUrl.startsWith('http') ? provider.photoUrl : `${import.meta.env.VITE_API_URL}${provider.photoUrl}`)
-    : FALLBACK[provider.id % 3];
+const photo = provider.photoUrl
+  ? provider.photoUrl
+  : FALLBACK[provider.id % 3];
 
   return (
     <div className="min-h-screen bg-cream dark:bg-slate-950">
@@ -136,7 +136,7 @@ export default function ProviderProfile() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {provider.workImages.map((url, i) => (
                     <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-navy/5 dark:bg-slate-900 group">
-                      <img src={url.startsWith('http') ? url : `${import.meta.env.VITE_API_URL}${url}`}
+                      <img src={url} />
                         alt={`Work ${i + 1}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
