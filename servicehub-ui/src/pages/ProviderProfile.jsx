@@ -136,7 +136,7 @@ const photo = provider.photoUrl
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {provider.workImages.map((url, i) => (
                     <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-navy/5 dark:bg-slate-900 group">
-                      <img src={url} />
+                      <img src={url}
                         alt={`Work ${i + 1}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
