@@ -244,7 +244,7 @@ export default function AdminPanel() {
                 <div className="flex items-center gap-5">
                   <div className="w-14 h-14 rounded-2xl bg-cream dark:bg-slate-950 dark:bg-slate-700 overflow-hidden">
                     {p.photoUrl ? (
-                      <img src={`${import.meta.env.VITE_API_URL}${p.photoUrl}`}
+                      <img src={p.photoUrl.startsWith('http') ? p.photoUrl : `${import.meta.env.VITE_API_URL}${p.photoUrl}`}
                         alt="" className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center

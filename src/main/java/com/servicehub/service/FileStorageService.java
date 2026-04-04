@@ -1,69 +1,75 @@
 package com.servicehub.service;
 
-// This handles saving uploaded files to disk, generating unique filenames to avoid collisions,
-// and serving the public URL back.
-
-import org.springframework.beans.factory.annotation.Value;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class FileStorageService {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary;
 
-    // --- Save file to disk and return its public URL ---
-    // Generates a UUID filename so two uploads of "photo.jpg"
-    // never overwrite each other
+    // --- Save file to Cloudinary and return its public secure URL ---
     public String storeFile(MultipartFile file, String subfolder) {
         try {
-            // Validate extension — only allow images
-            String originalName = StringUtils.cleanPath(
-                    file.getOriginalFilename());
-            String ext = originalName.substring(
-                    originalName.lastIndexOf(".")).toLowerCase();
+            // Validate extension
+            String originalName = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "");
+            String ext = originalName.contains(".") ? originalName.substring(originalName.lastIndexOf(".")).toLowerCase() : "";
 
             if (!ext.matches("\\.(jpg|jpeg|png|webp|gif)")) {
-                throw new RuntimeException(
-                        "Only image files are allowed (jpg, jpeg, png, webp, gif)");
+                throw new RuntimeException("Only image files are allowed (jpg, jpeg, png, webp, gif)");
             }
 
-            // Build target folder path
-            Path targetDir = Paths.get(uploadDir + subfolder).toAbsolutePath();
-            Files.createDirectories(targetDir);
+            // Upload directly to Cloudinary using subfolder as the cloud folder
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", "servicehub/" + subfolder,
+                    "public_id", UUID.randomUUID().toString()
+            ));
 
-            // Generate unique filename
-            String newFilename = UUID.randomUUID() + ext;
-            Path targetPath = targetDir.resolve(newFilename);
-
-            Files.copy(file.getInputStream(), targetPath,
-                    StandardCopyOption.REPLACE_EXISTING);
-
-            // Return the public URL path (served by Spring Boot)
-            return "/uploads/" + subfolder + "/" + newFilename;
+            // Return the public secure URL
+            return uploadResult.get("secure_url").toString();
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store file: " + e.getMessage());
+            throw new RuntimeException("Failed to store file in Cloudinary: " + e.getMessage());
         }
     }
 
-    // --- Delete a file by its URL path ---
+    // --- Delete a file by its URL ---
     public void deleteFile(String fileUrl) {
         try {
             if (fileUrl == null || fileUrl.isEmpty()) return;
-            // Convert URL back to filesystem path
-            String relativePath = fileUrl.replace("/uploads/", uploadDir);
-            Path filePath = Paths.get(relativePath).toAbsolutePath();
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
+            
+            // Extract the public_id from the Cloudinary URL
+            // Format: https://res.cloudinary.com/.../upload/v12345/servicehub/profiles/uuid.jpg
+            int uploadIndex = fileUrl.indexOf("/upload/");
+            if (uploadIndex == -1) return; // Not a standard Cloudinary URL
+            
+            String pathWithoutUpload = fileUrl.substring(uploadIndex + 8);
+            // pathWithoutUpload = v12345/servicehub/profiles/uuid.jpg
+            
+            int firstSlashIndex = pathWithoutUpload.indexOf("/");
+            if (firstSlashIndex == -1) return;
+            
+            String publicIdWithExtension = pathWithoutUpload.substring(firstSlashIndex + 1);
+            // publicIdWithExtension = servicehub/profiles/uuid.jpg
+            
+            int lastDotIndex = publicIdWithExtension.lastIndexOf(".");
+            String publicId = lastDotIndex != -1 
+                    ? publicIdWithExtension.substring(0, lastDotIndex) 
+                    : publicIdWithExtension;
+            
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+        } catch (Exception e) {
             // Log but don't throw — deletion failure shouldn't break the app
-            System.err.println("Could not delete file: " + e.getMessage());
+            System.err.println("Could not delete file from Cloudinary: " + e.getMessage());
         }
     }
 }
