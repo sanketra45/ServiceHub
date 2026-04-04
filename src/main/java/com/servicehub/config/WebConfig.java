@@ -9,9 +9,18 @@ public class WebConfig implements WebMvcConfigurer {
 
     // Obsolete uploads mapping removed
     @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:uploads/");
+    }
+
+    @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // 🔥 CHANGE HERE
-                .allowedOrigins("http://localhost:5173")
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "https://service-hub-seven-phi.vercel.app"
+                )
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .allowCredentials(true);
