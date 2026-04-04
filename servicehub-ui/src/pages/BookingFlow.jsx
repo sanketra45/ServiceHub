@@ -172,7 +172,7 @@ export default function BookingFlow() {
               <div className="w-12 h-12 rounded-xl bg-cream/10
                               overflow-hidden flex-shrink-0">
                 {provider.photoUrl ? (
-                  <img src={`${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
+                  <img src={provider.photoUrl.startsWith('http') ? provider.photoUrl : `${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
                     alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

@@ -13,7 +13,7 @@ export default function ProviderCard({ provider }) {
       <div className="h-56 bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
         {provider.photoUrl ? (
           <img
-            src={`${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
+            src={provider.photoUrl.startsWith('http') ? provider.photoUrl : `${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
             alt={provider.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
