@@ -26,7 +26,7 @@ public class ReviewController {
 
     // POST /api/reviews — Customer submits a review after completed booking
     @PostMapping
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<ReviewResponse> submit(
             @AuthenticationPrincipal CustomUserDetails userDetails,  // ✅
             @Valid @RequestBody ReviewRequest request) {
@@ -41,7 +41,7 @@ public class ReviewController {
 
     // GET /api/reviews/my — Customer views all reviews they have written
     @GetMapping("/my")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<List<ReviewResponse>> myReviews(
             @AuthenticationPrincipal CustomUserDetails userDetails) {  // ✅
         return ResponseEntity.ok(reviewService.getCustomerReviews(userDetails.getUser().getId()));
@@ -49,7 +49,7 @@ public class ReviewController {
 
     // DELETE /api/reviews/{id} — Admin removes a fake or abusive review
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();
