@@ -29,7 +29,7 @@ public class AvailabilityController {
     // POST /api/availability — Provider adds a new weekly slot
     // Body: { "dayOfWeek": "MONDAY", "startTime": "09:00", "endTime": "17:00" }
     @PostMapping
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<AvailabilityResponse> addSlot(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody AvailabilityRequest request) {
@@ -64,7 +64,7 @@ public class AvailabilityController {
 
     // PATCH /api/availability/{slotId}/toggle — Provider blocks/unblocks a slot
     @PatchMapping("/{slotId}/toggle")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<AvailabilityResponse> toggle(
             @PathVariable Long slotId,
             @AuthenticationPrincipal CustomUserDetails user) {
@@ -73,7 +73,7 @@ public class AvailabilityController {
 
     // DELETE /api/availability/{slotId} — Provider permanently removes a slot
     @DeleteMapping("/{slotId}")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<Void> delete(
             @PathVariable Long slotId,
             @AuthenticationPrincipal CustomUserDetails user) {
@@ -83,7 +83,7 @@ public class AvailabilityController {
 
     // DELETE /api/availability/clear — Provider wipes their full schedule
     @DeleteMapping("/clear")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<Void> clearSchedule(@AuthenticationPrincipal CustomUserDetails user) {
         availabilityService.clearSchedule(user.getId());
         return ResponseEntity.noContent().build();

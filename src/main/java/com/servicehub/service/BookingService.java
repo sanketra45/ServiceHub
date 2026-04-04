@@ -80,9 +80,9 @@ public class BookingService {
                                           Long requesterId, String role) {
         BookingStatus current = booking.getStatus();
 
-        if ("ROLE_ADMIN".equals(role)) return;
+        if ("ADMIN".equals(role)) return;
 
-        if ("ROLE_PROVIDER".equals(role)) {
+        if ("PROVIDER".equals(role)) {
             Long providerId = booking.getProvider().getUser().getId();
             if (!providerId.equals(requesterId)) {
                 throw new RuntimeException("Not your booking");
@@ -95,7 +95,7 @@ public class BookingService {
             }
         }
 
-        if ("ROLE_CUSTOMER".equals(role)) {
+        if ("CUSTOMER".equals(role)) {
             if (!booking.getCustomer().getId().equals(requesterId)) {
                 throw new RuntimeException("Not your booking");
             }

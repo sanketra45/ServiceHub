@@ -25,7 +25,7 @@ public class EmergencyController {
 
     // POST /api/emergency
     @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<EmergencyRequest> create(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam String serviceType,
@@ -43,7 +43,7 @@ public class EmergencyController {
 
     // GET /api/emergency/my
     @GetMapping("/my")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<List<EmergencyRequest>> myEmergencies(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -55,7 +55,7 @@ public class EmergencyController {
 
     // GET /api/emergency/provider
     @GetMapping("/provider")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<List<EmergencyRequest>> providerEmergencies(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -71,7 +71,7 @@ public class EmergencyController {
 
     // GET /api/emergency/pending
     @GetMapping("/pending")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<EmergencyRequest>> pending() {
         return ResponseEntity.ok(emergencyService.getPendingEmergencies());
     }

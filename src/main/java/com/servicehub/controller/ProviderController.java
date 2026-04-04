@@ -22,7 +22,7 @@ public class ProviderController {
 
     // ✅ CREATE PROFILE
     @PostMapping("/profile")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<ProviderResponse> createProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ProviderRequest request) {
@@ -37,7 +37,7 @@ public class ProviderController {
 
     // ✅ UPDATE PROFILE
     @PutMapping("/profile")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<ProviderResponse> updateProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ProviderRequest request) {
@@ -49,7 +49,7 @@ public class ProviderController {
 
     // ✅ GET MY PROFILE
     @GetMapping("/profile/me")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<ProviderResponse> getMyProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -103,7 +103,7 @@ public class ProviderController {
 
     // ✅ ADMIN VERIFY
     @PatchMapping("/{id}/verify")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ProviderResponse> toggleVerify(@PathVariable Long id) {
         return ResponseEntity.ok(providerService.toggleVerification(id));
     }

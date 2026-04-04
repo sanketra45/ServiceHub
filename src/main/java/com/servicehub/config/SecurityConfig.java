@@ -51,23 +51,23 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
 
                         // PROVIDER-only
-                        .requestMatchers("/api/providers/me/**").hasRole("PROVIDER")
+                        .requestMatchers("/api/providers/me/**").hasAuthority("PROVIDER")
 
                         .requestMatchers("/uploads/**").permitAll()
 
                         // CUSTOMER APIs
-                        .requestMatchers("/api/emergency/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/emergency/**").hasAuthority("CUSTOMER")
 
                         // REVIEWS
-                        .requestMatchers("/api/reviews/**").hasAnyRole("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/reviews/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
 
                         // BOOKINGS
-                        .requestMatchers("/api/bookings/**").hasAnyRole("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/bookings/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
 
                         // ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 
-                        .requestMatchers("/api/images/**").hasRole("PROVIDER")
+                        .requestMatchers("/api/images/**").hasAuthority("PROVIDER")
 
                         .anyRequest().authenticated()
                 )

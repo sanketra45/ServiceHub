@@ -28,7 +28,7 @@ public class BookingController {
 
     // 🔥 CREATE BOOKING (CUSTOMER / PROVIDER)
     @PostMapping
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'PROVIDER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'PROVIDER')")
     public ResponseEntity<BookingResponse> create(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody BookingRequest request) {
@@ -42,7 +42,7 @@ public class BookingController {
 
     // 🔥 CUSTOMER BOOKINGS
     @GetMapping("/my")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity<List<BookingResponse>> myBookings(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -55,7 +55,7 @@ public class BookingController {
 
     // 🔥 PROVIDER BOOKINGS
     @GetMapping("/provider")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasAuthority('PROVIDER')")
     public ResponseEntity<List<BookingResponse>> providerBookings(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
@@ -76,7 +76,7 @@ public class BookingController {
 
     // 🔥 UPDATE STATUS (CUSTOMER / PROVIDER)
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('CUSTOMER','PROVIDER','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER','PROVIDER','ADMIN')")
     public ResponseEntity<BookingResponse> updateStatus(
             @PathVariable Long id,
             @RequestParam BookingStatus status,
