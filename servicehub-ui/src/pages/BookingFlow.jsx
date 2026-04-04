@@ -87,7 +87,7 @@ export default function BookingFlow() {
 
       // ✅ API call
       const response = await axios.post(
-        "http://localhost:8080/api/bookings",
+        `${import.meta.env.VITE_API_URL}/api/bookings`,
         payload,
         {
           headers: {
@@ -172,7 +172,7 @@ export default function BookingFlow() {
               <div className="w-12 h-12 rounded-xl bg-cream/10
                               overflow-hidden flex-shrink-0">
                 {provider.photoUrl ? (
-                  <img src={`http://localhost:8080${provider.photoUrl}`}
+                  <img src={`${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
                     alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

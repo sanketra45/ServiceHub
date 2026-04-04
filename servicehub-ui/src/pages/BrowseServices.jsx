@@ -34,7 +34,7 @@ const FALLBACK_IMGS = [
 
 function ProviderCard({ provider, navigate }) {
   const imgUrl = provider.photoUrl 
-    ? `http://localhost:8080${provider.photoUrl}`
+    ? `${import.meta.env.VITE_API_URL}${provider.photoUrl}`
     : FALLBACK_IMGS[(provider.id || 0) % FALLBACK_IMGS.length];
 
   return (

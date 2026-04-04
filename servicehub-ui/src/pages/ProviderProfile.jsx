@@ -33,7 +33,7 @@ export default function ProviderProfile() {
   );
 
   const photo = provider.photoUrl
-    ? `http://localhost:8080${provider.photoUrl}`
+    ? `${import.meta.env.VITE_API_URL}${provider.photoUrl}`
     : FALLBACK[provider.id % 3];
 
   return (

@@ -162,7 +162,7 @@ const handleWorkUpload = async (e) => {
       {/* Header */}
       <div className="relative bg-navy dark:bg-slate-900 overflow-hidden">
         {profile?.photoUrl && (
-          <img src={`http://localhost:8080${profile.photoUrl}`}
+          <img src={`${import.meta.env.VITE_API_URL}${profile.photoUrl}`}
             alt="" className="absolute inset-0 w-full h-full object-cover
                               opacity-10" />
         )}
@@ -173,7 +173,7 @@ const handleWorkUpload = async (e) => {
               <div className="w-20 h-20 rounded-3xl overflow-hidden bg-navy/5 dark:hover:bg-slate-8000
                               border-2 border-gold/30">
                 {profile?.photoUrl ? (
-                  <img src={`http://localhost:8080${profile.photoUrl}`}
+                  <img src={`${import.meta.env.VITE_API_URL}${profile.photoUrl}`}
                     alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -409,7 +409,7 @@ const handleWorkUpload = async (e) => {
                   <div key={i}
                     className="aspect-square rounded-3xl overflow-hidden
                                bg-navy/5 dark:hover:bg-slate-800 group relative">
-                    <img src={`http://localhost:8080${url}`}
+                    <img src={`${import.meta.env.VITE_API_URL}${url}`}
                       alt={`Work ${i + 1}`}
                       className="w-full h-full object-cover
                                  group-hover:scale-105 transition-transform
