@@ -67,7 +67,7 @@ public class SecurityConfig {
                         // ADMIN
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 
-                        .requestMatchers("/api/images/**").authenticated()
+                        .requestMatchers("/api/images/**").permitAll()
 
                         .anyRequest().authenticated()
                 )
