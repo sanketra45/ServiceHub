@@ -47,6 +47,8 @@ public class SecurityConfig {
                         // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
 
+                        .requestMatchers("/api/images/**").authenticated()
+
                         // PUBLIC provider listing
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
 
@@ -66,8 +68,6 @@ public class SecurityConfig {
 
                         // ADMIN
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-
-                        .requestMatchers("/api/images/**").permitAll()
 
                         .anyRequest().authenticated()
                 )

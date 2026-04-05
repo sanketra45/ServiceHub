@@ -1,7 +1,5 @@
 package com.servicehub.controller;
 
-// THIS HANDLES ALL THE IMAGE UPLOAD RELATED REQUESTS AND APIS FROM THE FRONTEND
-
 import com.servicehub.model.ServiceProvider;
 import com.servicehub.repository.ServiceProviderRepository;
 import com.servicehub.security.CustomUserDetails;
@@ -27,10 +25,13 @@ public class ImageController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        if (userDetails == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
         ServiceProvider provider = providerRepository.findByUserId(userDetails.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
-        // Delete old photo if exists
         if (provider.getPhotoUrl() != null && !provider.getPhotoUrl().isEmpty()) {
             fileStorageService.deleteFile(provider.getPhotoUrl());
         }
@@ -47,6 +48,10 @@ public class ImageController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
+        if (userDetails == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
         ServiceProvider provider = providerRepository.findByUserId(userDetails.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("Provider profile not found"));
 
@@ -61,6 +66,7 @@ public class ImageController {
     public ResponseEntity<Void> deleteImage(
             @RequestParam String fileUrl,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         fileStorageService.deleteFile(fileUrl);
         return ResponseEntity.noContent().build();
     }
