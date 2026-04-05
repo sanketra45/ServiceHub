@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/images")
 @RequiredArgsConstructor
+@Slf4j
 public class ImageController {
 
     private final FileStorageService fileStorageService;
@@ -26,6 +28,10 @@ public class ImageController {
     public ResponseEntity<Map<String, String>> uploadProfilePhoto(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        log.info("Profile upload request. User: {}, Authorities: {}", 
+                 userDetails != null ? userDetails.getUsername() : "null",
+                 userDetails != null ? userDetails.getAuthorities() : "none");
 
         if (userDetails == null) {
             throw new RuntimeException("User not authenticated");
@@ -50,6 +56,10 @@ public class ImageController {
     public ResponseEntity<Map<String, String>> uploadWorkImage(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        log.info("Work image upload request. User: {}, Authorities: {}", 
+                 userDetails != null ? userDetails.getUsername() : "null",
+                 userDetails != null ? userDetails.getAuthorities() : "none");
 
         if (userDetails == null) {
             throw new RuntimeException("User not authenticated");

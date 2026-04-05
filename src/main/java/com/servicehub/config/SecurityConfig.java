@@ -47,10 +47,8 @@ public class SecurityConfig {
                         // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // IMAGES (UPLOAD/DELETE)
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/images/**").hasAnyAuthority("PROVIDER", "ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/images/**").hasAnyAuthority("PROVIDER", "ADMIN")
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/images/**").authenticated()
+                        // IMAGES
+                        .requestMatchers("/api/images/**").authenticated()
 
                         // PUBLIC provider listing
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
