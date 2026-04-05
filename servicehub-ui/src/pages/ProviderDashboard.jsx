@@ -2,9 +2,10 @@
 import { useEffect, useState, useRef } from "react";
 import { getProviderBookings, updateStatus } from "../api/bookings";
 import { getMyProfile, uploadProfilePhoto, uploadWorkImage, createProfile, updateProfile, getProviderAvailability, addProviderSlot, deleteProviderSlot } from "../api/providers";
+import { getMyMessages, markMessageAsRead } from "../api/messages";
 import { useAuth } from "../context/AuthContext";
 import { Upload, Camera, BadgeCheck, Star,
-         TrendingUp, Clock, CalendarDays, Trash2, Plus } from "lucide-react";
+         TrendingUp, Clock, CalendarDays, Trash2, Plus, MessageSquare, Bell } from "lucide-react";
 import toast from "react-hot-toast";
 
 const NEXT = { PENDING: "ACCEPTED", ACCEPTED: "IN_PROGRESS", IN_PROGRESS: "COMPLETED" };
@@ -19,6 +20,7 @@ export default function ProviderDashboard() {
   const [profile, setProfile]     = useState(null);
   const [workImgs, setWorkImgs]   = useState([]);
   const [tab, setTab]             = useState("bookings");
+  const [messages, setMessages]   = useState([]);
   
   const [availability, setAvailability] = useState([]);
   const [slotForm, setSlotForm]   = useState({ dayOfWeek: "MONDAY", startTime: "09:00", endTime: "17:00" });
@@ -54,6 +56,19 @@ useEffect(() => {
     }
   });
 }, []);
+
+  useEffect(() => {
+    if (tab === "messages") {
+      getMyMessages().then(r => setMessages(r.data)).catch(() => {});
+    }
+  }, [tab]);
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markMessageAsRead(id);
+      setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
+    } catch { /* ignore */ }
+  };
 
 useEffect(() => {
   if (profile && tab === "availability") {
@@ -231,14 +246,17 @@ const handleWorkUpload = async (e) => {
 
       {/* Body */}
       <div className="max-w-5xl mx-auto px-8 py-10">
-        <div className="flex gap-2 mb-8">
-          {["profile", "availability", "bookings", "gallery"].map((t) => (
+        <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+          {["profile", "availability", "bookings", "gallery", "messages"].map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold
                          capitalize transition ${tab === t
                 ? "bg-navy dark:bg-slate-900 text-cream dark:text-slate-100"
                 : "bg-white dark:bg-slate-800 border border-black/10 dark:border-slate-600 text-navy/50 dark:text-slate-400"}`}>
               {t}
+              {t === "messages" && messages.some(m => !m.read) && (
+                <span className="ml-2 w-2 h-2 bg-red-500 rounded-full inline-block"></span>
+              )}
             </button>
           ))}
         </div>
@@ -431,7 +449,59 @@ const handleWorkUpload = async (e) => {
           </div>
         )}
 
-        {/* Profile tab */}
+        {/* Messages Tab */}
+        {tab === "messages" && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-serif text-2xl text-navy dark:text-white">Notifications & Messages</h2>
+              <span className="text-sm text-navy/50 dark:text-slate-400">
+                {messages.filter(m => !m.read).length} unread
+              </span>
+            </div>
+            
+            {messages.length === 0 ? (
+              <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-3xl border border-black/5 dark:border-slate-700">
+                <Bell size={40} className="mx-auto text-navy/20 dark:text-slate-600 mb-4" />
+                <p className="font-serif text-xl text-navy/30 dark:text-slate-500">No messages yet</p>
+              </div>
+            ) : (
+              <div className="grid gap-3">
+                {messages.map((m) => (
+                  <div key={m.id} 
+                    className={`p-5 rounded-2xl border transition group ${m.read 
+                      ? "bg-white/50 dark:bg-slate-800/50 border-black/5 dark:border-slate-700 opacity-80" 
+                      : "bg-white dark:bg-slate-800 border-gold/20 dark:border-amber-900/30 shadow-sm"}`}>
+                    <div className="flex gap-4">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${m.read ? "bg-navy/5 dark:bg-slate-700" : "bg-gold/10 dark:bg-amber-900/20"}`}>
+                        <MessageSquare size={18} className={m.read ? "text-navy/30 dark:text-slate-500" : "text-gold dark:text-amber-400"} />
+                      </div>
+                      <div className="flex-grow">
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className={`font-semibold text-sm ${m.read ? "text-navy/60 dark:text-slate-400" : "text-navy dark:text-white"}`}>
+                            {m.senderName || "System Notification"}
+                          </h4>
+                          <span className="text-[10px] text-navy/30 dark:text-slate-500 font-medium">
+                            {new Date(m.createdAt).toLocaleDateString()} at {new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </span>
+                        </div>
+                        <p className={`text-sm mb-3 ${m.read ? "text-navy/40 dark:text-slate-500" : "text-navy/70 dark:text-slate-300"}`}>
+                          {m.content}
+                        </p>
+                        {!m.read && (
+                          <button 
+                            onClick={() => handleMarkAsRead(m.id)}
+                            className="text-xs font-bold text-gold dark:text-amber-400 hover:underline transition">
+                            Mark as read
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {tab === "profile" && (
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-black/5 dark:border-slate-700 shadow-sm">
             <h2 className="font-serif text-2xl text-navy dark:text-white mb-2">Profile Settings</h2>

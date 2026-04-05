@@ -7,6 +7,7 @@ import com.servicehub.model.*;
 import com.servicehub.model.enums.BookingStatus;
 import com.servicehub.model.enums.PaymentStatus;
 import com.servicehub.repository.*;
+import com.servicehub.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ public class BookingService {
     private final ServiceProviderRepository providerRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final MessageService messageService;
 
     public BookingResponse createBooking(Long customerId, BookingRequest request) {
         User customer = userRepository.findById(customerId)
@@ -58,6 +60,7 @@ public class BookingService {
 
         emailService.sendBookingConfirmation(savedBooking);
         emailService.sendNewBookingNotificationToProvider(savedBooking);
+        messageService.sendBookingMessage(savedBooking);
 
         return mapToResponse(savedBooking);
     }

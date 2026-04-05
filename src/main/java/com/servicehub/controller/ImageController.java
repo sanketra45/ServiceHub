@@ -6,6 +6,7 @@ import com.servicehub.security.CustomUserDetails;
 import com.servicehub.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ public class ImageController {
     private final ServiceProviderRepository providerRepository;
 
     @PostMapping("/profile")
+    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Map<String, String>> uploadProfilePhoto(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -44,6 +46,7 @@ public class ImageController {
     }
 
     @PostMapping("/work")
+    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Map<String, String>> uploadWorkImage(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -63,6 +66,7 @@ public class ImageController {
     }
 
     @DeleteMapping
+    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Void> deleteImage(
             @RequestParam String fileUrl,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
