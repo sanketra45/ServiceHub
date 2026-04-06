@@ -24,7 +24,6 @@ public class ImageController {
     private final ServiceProviderRepository providerRepository;
 
     @PostMapping("/profile")
-    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Map<String, String>> uploadProfilePhoto(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -52,7 +51,6 @@ public class ImageController {
     }
 
     @PostMapping("/work")
-    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Map<String, String>> uploadWorkImage(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -76,7 +74,6 @@ public class ImageController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasAnyAuthority('PROVIDER', 'ADMIN')")
     public ResponseEntity<Void> deleteImage(
             @RequestParam String fileUrl,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
