@@ -48,27 +48,27 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
 
                         // IMAGES
-                        .requestMatchers("/api/images/**").hasAnyAuthority("PROVIDER", "ADMIN")
+                        .requestMatchers("/api/images/**").hasAnyRole("PROVIDER", "ADMIN")
 
                         // PUBLIC provider listing
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
 
                         // PROVIDER-only
-                        .requestMatchers("/api/providers/me/**").hasAuthority("PROVIDER")
+                        .requestMatchers("/api/providers/me/**").hasRole("PROVIDER")
 
                         .requestMatchers("/uploads/**").permitAll()
 
                         // CUSTOMER APIs
-                        .requestMatchers("/api/emergency/**").hasAuthority("CUSTOMER")
+                        .requestMatchers("/api/emergency/**").hasRole("CUSTOMER")
 
                         // REVIEWS
-                        .requestMatchers("/api/reviews/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/reviews/**").hasAnyRole("CUSTOMER", "PROVIDER")
 
                         // BOOKINGS
-                        .requestMatchers("/api/bookings/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/bookings/**").hasAnyRole("CUSTOMER", "PROVIDER")
 
                         // ADMIN
-                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -118,11 +118,10 @@ public class SecurityConfig {
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
-        // 🔥 Allow Vercel and Localhost for CORS
+        // 🔥 Strict CORS for Vercel and Localhost
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
-                "https://service-hub-seven-phi.vercel.app",
-                "*" // Safe fallback with allowedOriginPatterns
+                "https://service-hub-seven-phi.vercel.app"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

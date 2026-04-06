@@ -28,9 +28,9 @@ public class ImageController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        log.info("Profile upload request. User: {}, Authorities: {}", 
-                 userDetails != null ? userDetails.getUsername() : "null",
-                 userDetails != null ? userDetails.getAuthorities() : "none");
+        log.info("Profile upload request. User: {}, Authorities: {}",
+                userDetails != null ? userDetails.getUsername() : "null",
+                userDetails != null ? userDetails.getAuthorities() : "none");
 
         if (userDetails == null) {
             throw new RuntimeException("User not authenticated");
@@ -55,9 +55,9 @@ public class ImageController {
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        log.info("Work image upload request. User: {}, Authorities: {}", 
-                 userDetails != null ? userDetails.getUsername() : "null",
-                 userDetails != null ? userDetails.getAuthorities() : "none");
+        log.info("Work image upload request. User: {}, Authorities: {}",
+                userDetails != null ? userDetails.getUsername() : "null",
+                userDetails != null ? userDetails.getAuthorities() : "none");
 
         if (userDetails == null) {
             throw new RuntimeException("User not authenticated");
