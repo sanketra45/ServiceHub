@@ -47,28 +47,28 @@ public class SecurityConfig {
                         // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // IMAGES
-                        .requestMatchers("/api/images/**").hasAnyRole("PROVIDER", "ADMIN")
+                        // IMAGES - TESTING PERMIT ALL TO ISOLATE 403
+                        .requestMatchers("/api/images/**").permitAll()
 
                         // PUBLIC provider listing
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()
 
                         // PROVIDER-only
-                        .requestMatchers("/api/providers/me/**").hasRole("PROVIDER")
+                        .requestMatchers("/api/providers/me/**").hasAuthority("PROVIDER")
 
                         .requestMatchers("/uploads/**").permitAll()
 
                         // CUSTOMER APIs
-                        .requestMatchers("/api/emergency/**").hasRole("CUSTOMER")
+                        .requestMatchers("/api/emergency/**").hasAuthority("CUSTOMER")
 
                         // REVIEWS
-                        .requestMatchers("/api/reviews/**").hasAnyRole("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/reviews/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
 
                         // BOOKINGS
-                        .requestMatchers("/api/bookings/**").hasAnyRole("CUSTOMER", "PROVIDER")
+                        .requestMatchers("/api/bookings/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
 
                         // ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -118,10 +118,11 @@ public class SecurityConfig {
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
-        // 🔥 Strict CORS for Vercel and Localhost
+        // 🔥 Allow Vercel and Localhost for CORS (Adding * pattern back if needed)
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:5173",
-                "https://service-hub-seven-phi.vercel.app"
+                "https://service-hub-seven-phi.vercel.app",
+                "*"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
