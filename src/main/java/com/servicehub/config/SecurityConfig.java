@@ -47,8 +47,8 @@ public class SecurityConfig {
                         // PUBLIC
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // IMAGES - TESTING PERMIT ALL TO ISOLATE 403
-                        .requestMatchers("/api/images/**").permitAll()
+                        // IMAGES
+                        .requestMatchers("/api/images/**").hasAuthority("PROVIDER")
 
                         // PUBLIC provider listing
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/providers/**").permitAll()

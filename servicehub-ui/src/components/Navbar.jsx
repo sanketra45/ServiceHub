@@ -56,6 +56,7 @@ export default function Navbar() {
           <div className="flex items-center gap-8">
             {[
               { to: "/", label: "Home" },
+              { to: "/about", label: "About Us" },
               { to: "/browse", label: "Browse Services" },
               { to: "/register", label: "Join Professionals", state: { role: "PROVIDER" } },
             ].map(({ to, label, state }) => (
@@ -133,6 +134,7 @@ export default function Navbar() {
             </button>
           </div>
           <Link to="/" className="text-base font-semibold text-slate-700 dark:text-slate-200" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link to="/about" className="text-base font-semibold text-slate-700 dark:text-slate-200" onClick={() => setMenuOpen(false)}>About Us</Link>
           <Link to="/browse" className="text-base font-semibold text-slate-700 dark:text-slate-200" onClick={() => setMenuOpen(false)}>Browse Services</Link>
           <Link to="/register" state={{ role: "PROVIDER" }} className="text-base font-semibold text-slate-700 dark:text-slate-200" onClick={() => setMenuOpen(false)}>Join Professionals</Link>
 

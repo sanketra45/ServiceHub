@@ -16,7 +16,9 @@ export const uploadProfilePhoto = (file) => {
   formData.append("file", file);
   const token = localStorage.getItem("token");
 
-  return api.post("/images/profile", formData);
+  return api.post("/images/profile", formData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 };
 
 // ✅ FIXED
@@ -25,7 +27,9 @@ export const uploadWorkImage = (file) => {
   formData.append("file", file);
   const token = localStorage.getItem("token");
 
-  return api.post("/images/work", formData);
+  return api.post("/images/work", formData, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
 };
 
 export const getFreeSlots = (id, date) =>

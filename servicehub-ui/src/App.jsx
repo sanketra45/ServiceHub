@@ -15,6 +15,7 @@ import AdminPanel from "./pages/AdminPanel";
 import Navbar from "./components/Navbar";
 import PaymentCallback from "./pages/PaymentCallback";
 import BrowseServices from "./pages/BrowseServices";
+import AboutUs from "./pages/AboutUs";
 
 // Route guard — redirects to login if not authenticated
 function Protected({ children, role }) {
@@ -33,6 +34,7 @@ export default function App() {
           <Toaster position="top-right" />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/browse" element={<BrowseServices />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
