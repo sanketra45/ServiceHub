@@ -25,6 +25,7 @@ public class CashfreePaymentService {
 
     private final BookingRepository bookingRepository;
     private final RestTemplate restTemplate;
+    private final BookingService bookingService;
 
     @Value("${cashfree.app.id}")
     private String appId;
@@ -194,6 +195,9 @@ public class CashfreePaymentService {
                 booking.setPaymentStatus(PaymentStatus.PAID);
                 bookingRepository.save(booking);
 
+                // 🔥 Trigger notifications after successful payment confirmation
+                bookingService.sendBookingConfirmations(booking);
+
                 return PaymentStatusResponse.builder()
                         .paymentStatus("PAID")
                         .cashfreeOrderId(cashfreeOrderId)
@@ -257,6 +261,9 @@ public class CashfreePaymentService {
                             booking.setPaymentStatus(PaymentStatus.PAID);
                             bookingRepository.save(booking);
                             log.info("Booking {} marked PAID via webhook", booking.getId());
+
+                            // 🔥 Trigger notifications after successful payment via webhook
+                            bookingService.sendBookingConfirmations(booking);
                         }
                     });
 

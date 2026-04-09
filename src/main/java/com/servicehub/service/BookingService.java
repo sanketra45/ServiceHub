@@ -58,11 +58,13 @@ public class BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        emailService.sendBookingConfirmation(savedBooking);
-        emailService.sendNewBookingNotificationToProvider(savedBooking);
-        messageService.sendBookingMessage(savedBooking);
-
         return mapToResponse(savedBooking);
+    }
+
+    public void sendBookingConfirmations(Booking booking) {
+        emailService.sendBookingConfirmation(booking);
+        emailService.sendNewBookingNotificationToProvider(booking);
+        messageService.sendBookingMessage(booking);
     }
 
     public BookingResponse updateStatus(Long bookingId, BookingStatus newStatus,

@@ -23,7 +23,7 @@ public class PaymentController {
     // POST /api/payments/create-order?bookingId=1
     // Creates a Cashfree order and returns payment_session_id
     @PostMapping("/create-order")
-    @PreAuthorize("hasAuthority('CUSTOMER')")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'PROVIDER')")
     public ResponseEntity<PaymentOrderResponse> createOrder(
             @RequestParam Long bookingId,
             @AuthenticationPrincipal CustomUserDetails user) {

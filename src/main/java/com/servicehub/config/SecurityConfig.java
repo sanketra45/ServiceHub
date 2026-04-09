@@ -67,6 +67,10 @@ public class SecurityConfig {
                         // BOOKINGS
                         .requestMatchers("/api/bookings/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
 
+                        // PAYMENTS
+                        .requestMatchers("/api/payments/webhook").permitAll()
+                        .requestMatchers("/api/payments/**").hasAnyAuthority("CUSTOMER", "PROVIDER")
+
                         // ADMIN
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 

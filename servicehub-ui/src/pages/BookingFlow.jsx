@@ -102,7 +102,7 @@ export default function BookingFlow() {
       setBooking(response.data);
       setStep(4);
 
-      toast.success("Booking confirmed 🎉");
+      // toast.success removed here; will be shown after payment confirmation.
 
     } catch (error) {
       console.error("FULL ERROR:", error);
@@ -286,7 +286,7 @@ export default function BookingFlow() {
                   </button>
                   <button onClick={handleSubmit} disabled={loading}
                     className="btn-primary flex-1 py-4 disabled:opacity-50">
-                    {loading ? "Confirming..." : "Confirm Booking"}
+                    {loading ? "Processing..." : "Proceed to Payment →"}
                   </button>
                 </div>
               </div>
