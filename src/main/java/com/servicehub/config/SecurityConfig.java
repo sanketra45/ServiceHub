@@ -74,6 +74,8 @@ public class SecurityConfig {
                         // ADMIN
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
 
+                        .requestMatchers("/error").permitAll()
+
                         .anyRequest().authenticated()
                 )
 

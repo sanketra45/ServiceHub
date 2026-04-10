@@ -113,7 +113,10 @@ public class BookingService {
 
     public List<BookingResponse> getCustomerBookings(Long customerId) {
         return bookingRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
-                .stream().map(this::mapToResponse).collect(Collectors.toList());
+                .stream()
+                .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID || b.getPaymentStatus() == PaymentStatus.REFUNDED)
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     public List<BookingResponse> getProviderBookings(Long userId) {
@@ -121,7 +124,10 @@ public class BookingService {
                 .orElseThrow(() -> new RuntimeException("Provider not found"));
 
         return bookingRepository.findByProviderId(provider.getId())
-                .stream().map(this::mapToResponse).collect(Collectors.toList());
+                .stream()
+                .filter(b -> b.getPaymentStatus() == PaymentStatus.PAID || b.getPaymentStatus() == PaymentStatus.REFUNDED)
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     public BookingResponse getById(Long bookingId) {

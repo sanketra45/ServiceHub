@@ -59,4 +59,10 @@ public class PaymentController {
         cashfreePaymentService.initiateRefund(bookingId, note);
         return ResponseEntity.ok(Map.of("message", "Refund initiated successfully."));
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleException(RuntimeException e) {
+        return ResponseEntity.status(org.springframework.http.HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", e.getMessage()));
+    }
 }
