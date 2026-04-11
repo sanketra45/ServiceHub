@@ -3,24 +3,37 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
-import { Sparkles, CheckCircle2, User, Briefcase } from "lucide-react";
+import { Sparkles, CheckCircle2, User, Briefcase, Eye, EyeOff } from "lucide-react";
 
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({
-    name: "", email: "", password: "", phone: "", role: location.state?.role || "CUSTOMER", serviceType: ""
+    name: "", email: "", password: "", confirmPassword: "", phone: "", role: location.state?.role || "CUSTOMER", serviceType: ""
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e) => {
       console.log("FORM:", form);
     e.preventDefault();
-    setLoading(true);
+    if (form.password !== form.confirmPassword) {
+      toast.error("Passwords do not match!");
+      return;
+    }
+    if (form.password.length < 6) {
+      toast.error("Password must be at least 6 characters!");
+      return;
+    }
+    if (form.phone.length < 10) {
+      toast.error("Please enter a valid phone number!");
+      return;
+    }
 
-    console.log("FORM DATA:", form); // 🔥 DEBUG
+    setLoading(true);
 
     try {
       await register(form);
@@ -143,16 +156,25 @@ export default function Register() {
             {[
               { k: "name",     label: "Full Name",  type: "text",     ph: "John Doe" },
               { k: "email",    label: "Email",       type: "email",    ph: "you@example.com" },
-              { k: "phone",    label: "Phone",       type: "tel",      ph: "9876543210" },
+              { k: "phone",    label: "Phone",       type: "tel",      ph: "9876543210", minLength: 10 },
               { k: "password", label: "Password",    type: "password", ph: "Min 6 characters" },
-            ].map(({ k, label, type, ph }) => (
-              <div key={k}>
+              { k: "confirmPassword", label: "Confirm Password", type: "password", ph: "Re-enter password" },
+            ].map(({ k, label, type, ph, minLength }) => (
+              <div key={k} className="relative">
                 <label className="label">{label}</label>
-                <input type={type} required
+                <input type={type === "password" ? (k === "password" ? (showPassword ? "text" : "password") : (showConfirmPassword ? "text" : "password")) : type} required
                   value={form[k]}
+                  minLength={minLength}
                   onChange={(e) => set(k, e.target.value)}
                   placeholder={ph}
-                  className="input py-3.5 w-full" />
+                  className="input py-3.5 w-full pr-12" />
+                
+                {type === "password" && (
+                  <button type="button" onClick={() => k === "password" ? setShowPassword(!showPassword) : setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-4 top-10 text-slate-400 hover:text-slate-600 transition">
+                    {k === "password" ? (showPassword ? <EyeOff size={18} /> : <Eye size={18} />) : (showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />)}
+                  </button>
+                )}
               </div>
             ))}
             

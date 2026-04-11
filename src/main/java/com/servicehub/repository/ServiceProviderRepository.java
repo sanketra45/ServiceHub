@@ -38,4 +38,7 @@ public interface ServiceProviderRepository extends JpaRepository<ServiceProvider
     List<ServiceProvider> findNearby(
             @Param("minLat") Double minLat, @Param("maxLat") Double maxLat,
             @Param("minLng") Double minLng, @Param("maxLng") Double maxLng);
+
+    @Query("SELECT DISTINCT p.city FROM ServiceProvider p WHERE p.city IS NOT NULL AND p.city != ''")
+    List<String> findDistinctCities();
 }

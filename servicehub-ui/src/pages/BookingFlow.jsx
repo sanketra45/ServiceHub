@@ -9,6 +9,17 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import PaymentButton from "../components/PaymentButton";
 import { CreditCard } from "lucide-react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+// Fix for default Leaflet icon in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png"
+});
 
 export default function BookingFlow() {
   const [booking, setBooking] = useState(null);
@@ -21,8 +32,17 @@ export default function BookingFlow() {
   const [form, setForm] = useState({
     providerId: Number(providerId),
     serviceType: "", description: "",
-    bookingDate: "", timeSlot: "", address: "",
+    bookingDate: "", timeSlot: "", address: "", lat: 20.5937, lng: 78.9629,
   });
+
+  function LocationMarker() {
+    useMapEvents({
+      click(e) {
+        setForm({ ...form, lat: e.latlng.lat, lng: e.latlng.lng });
+      },
+    });
+    return <Marker position={[form.lat, form.lng]} />;
+  }
 
   useEffect(() => {
     getProvider(providerId).then((r) => {
@@ -278,6 +298,18 @@ export default function BookingFlow() {
                       setForm({ ...form, address: e.target.value })}
                     placeholder="Full address where service is needed"
                     className="input resize-none w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white" />
+                </div>
+
+                <div className="flex gap-3">
+                  <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 z-0 relative">
+                    <MapContainer center={[form.lat, form.lng]} zoom={5} scrollWheelZoom={true} style={{ height: "100%", width: "100%" }}>
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                      <LocationMarker />
+                    </MapContainer>
+                  </div>
                 </div>
 
                 <div className="flex gap-3">

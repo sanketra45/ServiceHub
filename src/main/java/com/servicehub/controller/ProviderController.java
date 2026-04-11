@@ -108,6 +108,12 @@ public class ProviderController {
         return ResponseEntity.ok(providerService.toggleVerification(id));
     }
 
+    // ✅ CITIES
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getCities() {
+        return ResponseEntity.ok(providerService.getCities());
+    }
+
     // ✅ AI RECOMMEND
     @GetMapping("/ai-recommend")
     public ResponseEntity<List<ProviderResponse>> aiRecommend(

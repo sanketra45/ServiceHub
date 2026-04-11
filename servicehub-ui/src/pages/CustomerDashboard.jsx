@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { getMyBookings, updateStatus } from "../api/bookings";
 import { submitReview } from "../api/reviews";
 import { getMyEmergencies } from "../api/emergency";
+import { getCurrentUser, updateProfile } from "../api/users";
 import { useAuth } from "../context/AuthContext";
 import { Star, Zap, Plus, Clock, CheckCircle,
-         XCircle, Loader } from "lucide-react";
+         XCircle, Loader, User } from "lucide-react";
 import toast from "react-hot-toast";
 
 const STATUS_META = {
@@ -26,10 +27,13 @@ export default function CustomerDashboard() {
   const [review, setReview] = useState({
     show: false, bookingId: null, providerId: null, rating: 5, comment: ""
   });
+  const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
+  const [updatingProfile, setUpdatingProfile] = useState(false);
 
   useEffect(() => {
     getMyBookings().then((r) => setBookings(r.data)).catch(() => {});
 //     getMyEmergencies().then((r) => setEmergencies(r.data)).catch(() => {});
+    getCurrentUser().then(r => setProfileForm({ name: r.data.name || "", phone: r.data.phone || "" })).catch(() => {});
   }, []);
 
   const handleCancel = async (id) => {
@@ -49,6 +53,19 @@ export default function CustomerDashboard() {
       toast.success("Review submitted!");
       setReview((r) => ({ ...r, show: false }));
     } catch { toast.error("Review submission failed"); }
+  };
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    setUpdatingProfile(true);
+    try {
+      await updateProfile(profileForm);
+      toast.success("Profile updated successfully!");
+    } catch {
+      toast.error("Failed to update profile");
+    } finally {
+      setUpdatingProfile(false);
+    }
   };
 
   const stats = [
@@ -103,6 +120,7 @@ export default function CustomerDashboard() {
           {[
             { key: "bookings",    label: "My Bookings" },
             { key: "emergencies", label: "Emergency Requests" },
+            { key: "profile",     label: "My Profile" },
           ].map(({ key, label }) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold
@@ -181,17 +199,28 @@ export default function CustomerDashboard() {
                         </button>
                       )}
                       {b.status === "COMPLETED" && (
-                        <button onClick={() => setReview({
-                            show: true, bookingId: b.id,
-                            providerId: b.providerId, rating: 5, comment: ""
-                          })}
-                          className="flex items-center gap-1.5 px-4 py-2
-                                     rounded-xl bg-gold/10 dark:bg-amber-900/20 text-gold dark:text-amber-400
-                                     border border-gold/20 dark:border-amber-700/30 text-sm
-                                     font-semibold hover:bg-gold/20 transition">
-                          <Star size={13} fill="currentColor" />
-                          Leave Review
-                        </button>
+                        <>
+                          <button onClick={() => setReview({
+                              show: true, bookingId: b.id,
+                              providerId: b.providerId, rating: 5, comment: ""
+                            })}
+                            className="flex items-center gap-1.5 px-4 py-2
+                                       rounded-xl bg-gold/10 dark:bg-amber-900/20 text-gold dark:text-amber-400
+                                       border border-gold/20 dark:border-amber-700/30 text-sm
+                                       font-semibold hover:bg-gold/20 transition">
+                            <Star size={13} fill="currentColor" />
+                            Leave Review
+                          </button>
+                          <a href={`${import.meta.env.VITE_API_URL}/api/bookings/${b.id}/receipt`}
+                             target="_blank"
+                             rel="noreferrer"
+                             className="flex items-center gap-1.5 px-4 py-2
+                                        rounded-xl bg-sage/10 text-sage dark:bg-emerald-900/20 dark:text-emerald-400
+                                        border border-sage/20 dark:border-emerald-700/30 text-sm
+                                        font-semibold hover:bg-sage/20 transition">
+                            Download Receipt
+                          </a>
+                        </>
                       )}
                       <button
                         onClick={() => navigate(`/provider/${b.providerId}`)}
@@ -248,6 +277,39 @@ export default function CustomerDashboard() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Profile tab */}
+        {tab === "profile" && (
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-black/5 dark:border-slate-700 shadow-sm p-8 max-w-2xl mx-auto">
+            <h2 className="font-serif text-2xl text-navy dark:text-white mb-6 flex items-center gap-2">
+              <User size={24} className="text-gold dark:text-amber-400" />
+              Personal Information
+            </h2>
+            <form onSubmit={handleProfileUpdate} className="space-y-5">
+              <div>
+                <label className="label text-navy/60 dark:text-slate-400">Full Name</label>
+                <input type="text"
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm(f => ({ ...f, name: e.target.value }))}
+                  required
+                  className="input py-3 w-full bg-slate-50 dark:bg-slate-900 border-black/10 dark:border-slate-700 text-navy dark:text-white" />
+              </div>
+              <div>
+                <label className="label text-navy/60 dark:text-slate-400">Phone Number</label>
+                <input type="tel"
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm(f => ({ ...f, phone: e.target.value }))}
+                  required
+                  className="input py-3 w-full bg-slate-50 dark:bg-slate-900 border-black/10 dark:border-slate-700 text-navy dark:text-white" />
+              </div>
+              <div className="pt-4">
+                <button type="submit" disabled={updatingProfile} className="btn-primary py-3 px-8">
+                  {updatingProfile ? "Updating..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
           </div>
         )}
       </div>

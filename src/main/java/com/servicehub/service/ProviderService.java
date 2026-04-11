@@ -225,11 +225,15 @@ public class ProviderService {
                     .findByServiceTypeIgnoreCaseAndCityIgnoreCase(serviceType, city);
         } else if (serviceType != null) {
             pool = providerRepository.findByServiceTypeIgnoreCase(serviceType);
+        } else if (city != null) {
+            pool = providerRepository.findByCityIgnoreCase(city);
         } else {
             pool = providerRepository.findAll();
+            // Just take a subset if we are doing a massive search (assuming table isn't gigantic)
         }
 
         return pool.stream()
+                .filter(p -> p.getUser().isEnabled() && p.getHourlyRate() != null)
                 .sorted(Comparator.comparingDouble(
                         p -> -aiScore(p, userLat, userLng)))  // descending
                 .limit(10)
@@ -274,5 +278,9 @@ public class ProviderService {
     public ServiceProvider getByUserId(Long userId) {
         return providerRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Provider not found"));
+    }
+
+    public List<String> getCities() {
+        return providerRepository.findDistinctCities();
     }
 }

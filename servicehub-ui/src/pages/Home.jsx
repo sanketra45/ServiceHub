@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Search, MapPin, Zap, ArrowRight,
          Star, ShieldCheck, ChevronDown, Sparkles } from "lucide-react";
-import { searchProviders, aiRecommend } from "../api/providers";
+import { searchProviders, aiRecommend, getProviderCities } from "../api/providers";
 import { createEmergency } from "../api/emergency";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -47,12 +47,14 @@ export default function Home() {
   const [city, setCity]               = useState("");
   const [providers, setProviders]     = useState([]);
   const [recommended, setRecommended] = useState([]);
+  const [availableCities, setAvailableCities] = useState([]);
   const [loading, setLoading]         = useState(false);
   const [heroImg, setHeroImg]         = useState(0);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     aiRecommend({}).then((r) => setRecommended(r.data)).catch(() => {});
+    getProviderCities().then((r) => setAvailableCities(r.data)).catch(() => {});
     const t = setInterval(
       () => setHeroImg((i) => (i + 1) % HERO_IMAGES.length), 5000);
     return () => clearInterval(t);
@@ -152,13 +154,18 @@ export default function Home() {
 
               {/* Location Input */}
               <div className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 flex items-center gap-3">
-                <MapPin size={18} className="text-primary-500" />
-                <input 
+                <MapPin size={18} className="text-primary-500 flex-shrink-0" />
+                <select 
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="Your city"
-                  className="w-full py-3.5 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 text-sm font-semibold placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal outline-none" 
-                />
+                  className="w-full py-3.5 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 text-sm font-semibold outline-none appearance-none" 
+                >
+                  <option value="">Any City</option>
+                  {availableCities.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="text-slate-400 absolute right-6 pointer-events-none" />
               </div>
 
               {/* Search Button */}
@@ -280,7 +287,7 @@ export default function Home() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white dark:bg-slate-800 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-red-100"></span>
                 </span>
-                <span className="text-red-50 text-xs font-bold uppercase tracking-widest">
+                <span className="text-red-600 dark:text-red-50 text-xs font-bold uppercase tracking-widest">
                   Emergency Services
                 </span>
               </div>
@@ -353,18 +360,6 @@ export default function Home() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {(providers.length > 0 ? providers : recommended).map((p) => {
-                  // Map mock data if no real photo exists, like the old inline card
-                  const fallbackImgs = [
-                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
-                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
-                    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
-                  ];
-                  const pData = { ...p };
-                  if (!pData.photoUrl && p.id) {
-                    pData.photoUrl = "/fallback"; // Just setting a flag
-                    // Actually we cannot easily change the component behavior if we use the same ProviderCard,
-                    // But let's just use the external one, if it doesn't have photo it renders initials which is also nice!
-                  }
                   return <ProviderCard key={p.id} provider={p} />;
                 })}
               </div>
@@ -434,7 +429,7 @@ export default function Home() {
              </span>
           </div>
           <p className="text-slate-400 text-sm font-medium">
-            © 2024 ServiceHub Marketplace. All rights reserved.
+            © 2026 ServiceHub Marketplace. All rights reserved.
           </p>
           <div className="flex gap-8 text-sm font-semibold">
             <a href="#" className="hover:text-white transition-colors">Privacy</a>

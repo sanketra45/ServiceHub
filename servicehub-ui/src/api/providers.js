@@ -3,6 +3,7 @@ import api from "./axios";
 
 export const searchProviders  = (params) => api.get("/providers/search", { params });
 export const getProvider      = (id)     => api.get(`/providers/${id}`);
+export const getProviderCities= ()       => api.get("/providers/cities");
 export const aiRecommend      = (params) => api.get("/providers/ai-recommend", { params });
 export const getNearby        = (params) => api.get("/providers/nearby", { params });
 

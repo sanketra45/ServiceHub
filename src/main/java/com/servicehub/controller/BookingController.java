@@ -74,6 +74,22 @@ public class BookingController {
         );
     }
 
+    // 🔥 GENERATE RECEIPT
+    @GetMapping("/{id}/receipt")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER')")
+    public ResponseEntity<byte[]> getReceipt(@PathVariable Long id) {
+        try {
+            com.servicehub.model.Booking booking = bookingService.getBookingEntityById(id);
+            byte[] pdfBytes = bookingService.getPdfService().generateBookingReceipt(booking);
+            return ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"receipt_" + id + ".pdf\"")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     // 🔥 UPDATE STATUS (CUSTOMER / PROVIDER)
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyAuthority('CUSTOMER','PROVIDER','ADMIN')")

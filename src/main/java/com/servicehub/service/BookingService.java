@@ -23,6 +23,11 @@ public class BookingService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final MessageService messageService;
+    private final PdfService pdfService;
+
+    public PdfService getPdfService() {
+        return pdfService;
+    }
 
     public BookingResponse createBooking(Long customerId, BookingRequest request) {
         User customer = userRepository.findById(customerId)
@@ -65,6 +70,13 @@ public class BookingService {
         emailService.sendBookingConfirmation(booking);
         emailService.sendNewBookingNotificationToProvider(booking);
         messageService.sendBookingMessage(booking);
+        try {
+            byte[] pdfBytes = pdfService.generateBookingReceipt(booking);
+            emailService.sendBookingReceiptEmail(booking, pdfBytes);
+        } catch (Exception e) {
+            // Log error but don't block
+            System.err.println("Failed to generate and send receipt pdf: " + e.getMessage());
+        }
     }
 
     public BookingResponse updateStatus(Long bookingId, BookingStatus newStatus,
@@ -133,6 +145,11 @@ public class BookingService {
     public BookingResponse getById(Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .map(this::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+    }
+
+    public Booking getBookingEntityById(Long bookingId) {
+        return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
     }
 

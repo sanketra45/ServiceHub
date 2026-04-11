@@ -33,7 +33,7 @@ public class EmailService {
     // All email methods call this. @Async means emails are sent
     // in a background thread so the API response isn't delayed.
     @Async
-    public void sendEmail(String toEmail, String subject, String htmlBody) {
+    public void sendEmail(String toEmail, String subject, String htmlBody, byte[] attachment, String fileName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -41,11 +41,19 @@ public class EmailService {
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlBody, true); // true = HTML
+            if (attachment != null && fileName != null) {
+                helper.addAttachment(fileName, new org.springframework.core.io.ByteArrayResource(attachment));
+            }
             mailSender.send(message);
             log.info("Email sent to {}", toEmail);
         } catch (MessagingException e) {
             log.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
+    }
+
+    @Async
+    public void sendEmail(String toEmail, String subject, String htmlBody) {
+        sendEmail(toEmail, subject, htmlBody, null, null);
     }
 
     // --- Booking confirmation to customer ---
@@ -55,6 +63,15 @@ public class EmailService {
         String subject = "Booking Confirmed - ProPavilion #" + booking.getId();
         String body = buildBookingConfirmationHtml(booking);
         sendEmail(booking.getCustomer().getEmail(), subject, body);
+    }
+
+    // --- Booking notification to provider ---
+    // Triggered when a customer books the provider — they need to accept or reject
+    @Async
+    public void sendBookingReceiptEmail(Booking booking, byte[] pdfBytes) {
+        String subject = "Your Booking Receipt - ServiceHub #" + booking.getId();
+        String body = buildBookingConfirmationHtml(booking);
+        sendEmail(booking.getCustomer().getEmail(), subject, body, pdfBytes, "Receipt_" + booking.getId() + ".pdf");
     }
 
     // --- Booking notification to provider ---
