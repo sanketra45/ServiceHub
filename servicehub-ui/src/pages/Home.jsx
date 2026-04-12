@@ -51,6 +51,7 @@ export default function Home() {
   const [loading, setLoading]         = useState(false);
   const [heroImg, setHeroImg]         = useState(0);
   const [open, setOpen] = useState(false);
+  const [cityOpen, setCityOpen] = useState(false);
 
   useEffect(() => {
     aiRecommend({}).then((r) => setRecommended(r.data)).catch(() => {});
@@ -153,19 +154,28 @@ export default function Home() {
               </div>
 
               {/* Location Input */}
-              <div className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 flex items-center gap-3">
+              <div className="flex-1 relative bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl px-4 flex items-center gap-3">
                 <MapPin size={18} className="text-primary-500 flex-shrink-0" />
-                <select 
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full py-3.5 bg-transparent border-none focus:ring-0 text-slate-700 dark:text-slate-200 text-sm font-semibold outline-none appearance-none" 
+                <div 
+                  onClick={() => setCityOpen(!cityOpen)}
+                  className="flex-1 py-3.5 cursor-pointer text-slate-700 dark:text-slate-200 text-sm font-semibold flex items-center justify-between"
                 >
-                  <option value="">Any City</option>
-                  {availableCities.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="text-slate-400 absolute right-6 pointer-events-none" />
+                  {city || "Any City"}
+                </div>
+                <ChevronDown size={16} className="text-slate-400 dark:text-slate-500" />
+                
+                {cityOpen && (
+                  <div className="absolute top-[110%] left-0 w-full bg-white dark:bg-slate-800 dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 z-50 py-2 max-h-60 overflow-y-auto">
+                     <div onClick={() => { setCity(""); setCityOpen(false); }} className="px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors">
+                      Any City
+                    </div>
+                    {availableCities.map((c) => (
+                      <div key={c} onClick={() => { setCity(c); setCityOpen(false); }} className="px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-3">
+                        <MapPin size={14} className="text-slate-400" /> {c}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Search Button */}
@@ -304,9 +314,9 @@ export default function Home() {
               {["Electrician","Plumber","AC Repair","Pest Control"].map((s) => (
                 <button key={s} onClick={() => handleEmergency(s)}
                   className="px-6 py-4 rounded-xl bg-white dark:bg-slate-800/10 backdrop-blur-md border border-white/20 
-                             text-white text-sm font-bold shadow-lg
-                             hover:bg-white dark:bg-slate-800 hover:text-red-700 dark:text-red-300 transition-all duration-300 flex items-center gap-3">
-                  <Zap size={16} className="text-red-300" />
+                             text-red-700 dark:text-white text-sm font-bold shadow-lg
+                             hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-800 dark:hover:text-red-300 transition-all duration-300 flex items-center gap-3">
+                  <Zap size={16} className="text-red-600 dark:text-red-300" />
                   Request {s}
                 </button>
               ))}

@@ -1,9 +1,21 @@
-// src/components/ProviderCard.jsx
 import { useNavigate } from "react-router-dom";
 import { Star, MapPin, BadgeCheck } from "lucide-react";
 
+const FALLBACK_IMGS = [
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop",
+];
+
 export default function ProviderCard({ provider }) {
   const navigate = useNavigate();
+
+  const imgUrl = provider.photoUrl 
+    ? (provider.photoUrl.startsWith('http') ? provider.photoUrl : `${import.meta.env.VITE_API_URL}${provider.photoUrl}`)
+    : FALLBACK_IMGS[(provider.id || 0) % FALLBACK_IMGS.length];
 
   return (
     <div
@@ -11,18 +23,11 @@ export default function ProviderCard({ provider }) {
       className="card flex flex-col cursor-pointer group h-full">
       {/* Photo */}
       <div className="h-56 bg-slate-100 dark:bg-slate-800 relative overflow-hidden">
-        {provider.photoUrl ? (
-          <img
-            src={provider.photoUrl.startsWith('http') ? provider.photoUrl : `${import.meta.env.VITE_API_URL}${provider.photoUrl}`}
-            alt={provider.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center
-                          text-5xl font-bold text-primary-200 group-hover:scale-105 transition-transform duration-500 bg-gradient-to-br from-primary-50 to-primary-100">
-            {provider.name?.[0]}
-          </div>
-        )}
+        <img
+          src={imgUrl}
+          alt={provider.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
         
         {/* Verification Badge */}
         {provider.verified && (

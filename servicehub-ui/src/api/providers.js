@@ -15,22 +15,16 @@ export const getMyProfile     = ()       => api.get("/providers/profile/me");
 export const uploadProfilePhoto = (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const token = localStorage.getItem("token");
 
-  return api.post("/images/profile", formData, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  return api.post("/images/profile", formData);
 };
 
 // ✅ FIXED
 export const uploadWorkImage = (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const token = localStorage.getItem("token");
 
-  return api.post("/images/work", formData, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  return api.post("/images/work", formData);
 };
 
 export const getFreeSlots = (id, date) =>

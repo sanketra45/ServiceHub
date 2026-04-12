@@ -381,14 +381,18 @@ export default function BrowseServices() {
                         {items.length > 4 && (
                           <button 
                             onClick={() => handleCategoryChange(predefinedCat ? predefinedCat.id : catId)}
-                            className="hidden sm:flex items-center gap-2 text-sm font-bold text-primary-600 hover:text-primary-700 dark:hover:text-primary-400 transition-colors"
+                            className="flex items-center gap-2 text-sm font-bold text-primary-600 hover:text-primary-700 dark:hover:text-primary-400 transition-colors"
                           >
                             View All <ArrowRight size={16} />
                           </button>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {items.slice(0, 4).map(p => <ProviderCard key={p.id} provider={p} navigate={navigate} />)}
+                      <div className="flex overflow-x-auto pb-6 -mx-6 px-6 lg:mx-0 lg:px-0 gap-6 hide-scrollbar snap-x snap-mandatory">
+                        {items.slice(0, 4).map(p => (
+                          <div key={p.id} className="min-w-[280px] w-[85vw] sm:w-[320px] snap-center shrink-0">
+                            <ProviderCard provider={p} navigate={navigate} />
+                          </div>
+                        ))}
                       </div>
                     </div>
                   );
